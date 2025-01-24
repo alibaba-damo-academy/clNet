@@ -1,0 +1,23 @@
+{
+  "clnet_general_encoder": "GeneralEncoder",
+
+  "GeneralEncoder": {
+    "task": "Task001_SuperGeneralEncoder",
+    "continue_training": false,
+    "fold": "all",
+    "warmup": 0,
+    "finetune_encoder": true,
+    "pretrain_model_name": "/mnt/nas/suyanzhou.syz/clNet_workspace/results/clNet/3d_fullres/Task101_SuperGeneralEncoder_Filter/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/all/finetune_model_final_checkpoint.model",
+    "decoders": {
+      "hn": "144-183",
+      "bone": "18-41,58-92",
+      "others": "1-17,42-57,93-103"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": [0.30, 0.40, 1e-4, 2000, true, false, false]
+      }
+    }
+  }
+
+}

@@ -253,3 +253,6 @@ then the `GPU-0` will predict the `1st & 2nd` decoding heads, `GPU-1` will predi
 ```bash
 clNet_pred `pth_to_inference_json_file` -i `pth_to_input_folder` -o `pth_to_output_folder`
 ```
+
+## Pretraine Model ##
+The pretrained model is in [huggingface](https://huggingface.co/legendchilli/clNet).

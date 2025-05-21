@@ -1,0 +1,935 @@
+{
+    "GeneralEncoder": {
+        "task": "Task001_SuperGeneralEncoder",
+        "type": "GeneralEncoder",
+        "train_order": 0,
+        "continue_training": false,
+        "fold": "all",
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "load_only_encoder": true,
+        "decoders": {},
+        "supporting": {},
+        "weights_for_decoders": {},
+        "bpr_range_for_decoders": {},
+        "model_training_setup": {
+            "decoders": null,
+            "supporting": null,
+            "patch_size": {
+                "all": null
+            },
+            "batch_size": {
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "bak": {
+            "decoders": {},
+            "supporting": null,
+            "weights_for_decoders": {
+                "decoders": null,
+                "supporting": null
+            },
+            "model_training_setup": {
+                "decoders": null,
+                "supporting": null,
+                "patch_size": {
+                    "all": null
+                },
+                "batch_size": {
+                    "all": 2
+                }
+            }
+        },
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task001_SuperGeneralEncoder",
+        "decoder_architecture_setup": {},
+        "decoder_update": true,
+        "decoders_to_train": [],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "encoder_architecture_setup": {
+            "base_num_feature": 32,
+            "num_conv_per_stage": null,
+            "conv_kernel": null,
+            "pool_kernel": null,
+            "enable_ema": false
+        },
+        "finetune_encoder": false,
+        "full_network": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task001_SuperGeneralEncoder/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task001_SuperGeneralEncoder/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5,
+        "bpr_cls_details": {
+            "Ear_Mid_L": {
+                "name": "Ear_Mid_L",
+                "median": 4.936936238778223,
+                "mean": 4.942046886441346,
+                "sd": 0.6438272198113087,
+                "mn": 88.68834340368727,
+                "mx": 99.32273674385706,
+                "percentile_99_5": 95.78295850766808,
+                "percentile_00_5": 90.8911903721049
+            },
+            "Ear_Mid_R": {
+                "name": "Ear_Mid_R",
+                "median": 4.4327836532792375,
+                "mean": 4.460144852733186,
+                "sd": 0.6632650241507079,
+                "mn": 88.98114343549354,
+                "mx": 99.58476185897716,
+                "percentile_99_5": 95.71306205299186,
+                "percentile_00_5": 91.29832466420407
+            },
+            "Bone_ET_L": {
+                "name": "Bone_ET_L",
+                "median": 0.3955949784461765,
+                "mean": 0.4473364242443235,
+                "sd": 0.21010018445311132,
+                "mn": 92.52883489655454,
+                "mx": 96.60244078849385,
+                "percentile_99_5": 94.63590695214025,
+                "percentile_00_5": 94.19304411946719
+            },
+            "Bone_ET_R": {
+                "name": "Bone_ET_R",
+                "median": 0.3730453425181395,
+                "mean": 0.3802097942684471,
+                "sd": 0.19156312088977162,
+                "mn": 92.42271366112844,
+                "mx": 97.05169628287068,
+                "percentile_99_5": 94.60427396292681,
+                "percentile_00_5": 94.22786618823648
+            },
+            "Eye_L": {
+                "name": "Eye_L",
+                "median": 3.16893796716127,
+                "mean": 3.1184997888333794,
+                "sd": 0.635744770199866,
+                "mn": 92.00268825689012,
+                "mx": 102.5333707730517,
+                "percentile_99_5": 99.7025241555732,
+                "percentile_00_5": 96.6145185504917
+            },
+            "Eye_R": {
+                "name": "Eye_R",
+                "median": 3.2412697986010954,
+                "mean": 3.1683127412483234,
+                "sd": 0.6456084656677988,
+                "mn": 91.28088160328005,
+                "mx": 102.86452644739096,
+                "percentile_99_5": 99.63435595680438,
+                "percentile_00_5": 96.49704207455503
+            },
+            "Lens_L": {
+                "name": "Lens_L",
+                "median": 1.0372945737363892,
+                "mean": 1.0539783559299196,
+                "sd": 0.3957914587589649,
+                "mn": 92.49022840976185,
+                "mx": 102.51909783012539,
+                "percentile_99_5": 98.66689054463986,
+                "percentile_00_5": 97.62342366741267
+            },
+            "Lens_R": {
+                "name": "Lens_R",
+                "median": 1.053208621403833,
+                "mean": 1.0502987252652607,
+                "sd": 0.39871428119447144,
+                "mn": 78.05826630035071,
+                "mx": 102.45873852116965,
+                "percentile_99_5": 98.58347294415475,
+                "percentile_00_5": 97.54365363932247
+            },
+            "Chiasm": {
+                "name": "Chiasm",
+                "median": 0.7372575587576691,
+                "mean": 0.7402464779527489,
+                "sd": 0.2527287946706672,
+                "mn": 94.8394176978136,
+                "mx": 100.03279679822606,
+                "percentile_99_5": 97.97679949673176,
+                "percentile_00_5": 97.2439505415706
+            },
+            "OpticNerve_L": {
+                "name": "OpticNerve_L",
+                "median": 0.9374730165198031,
+                "mean": 0.9823391378842389,
+                "sd": 0.349992639034063,
+                "mn": 93.32262897411587,
+                "mx": 100.98923921151027,
+                "percentile_99_5": 98.34920283276,
+                "percentile_00_5": 97.37665957476771
+            },
+            "OpticNerve_R": {
+                "name": "OpticNerve_R",
+                "median": 0.8878543253215625,
+                "mean": 0.9135345075735409,
+                "sd": 0.3383270670533603,
+                "mn": 93.30170259998287,
+                "mx": 100.68960003454404,
+                "percentile_99_5": 98.27389231726205,
+                "percentile_00_5": 97.36947030245223
+            },
+            "TMJ_L": {
+                "name": "TMJ_L",
+                "median": 0.7976391608632198,
+                "mean": 0.8145008727602139,
+                "sd": 0.29618636280008154,
+                "mn": 91.32558832689867,
+                "mx": 96.18860164811996,
+                "percentile_99_5": 94.33097317158396,
+                "percentile_00_5": 93.52461689180713
+            },
+            "TMJ_R": {
+                "name": "TMJ_R",
+                "median": 0.8370915877349248,
+                "mean": 0.8876732868120241,
+                "sd": 0.3174208726103612,
+                "mn": 91.14618909675781,
+                "mx": 96.25465587477431,
+                "percentile_99_5": 94.30877871587504,
+                "percentile_00_5": 93.42998053050701
+            },
+            "Glnd_Pituitary": {
+                "name": "Glnd_Pituitary",
+                "median": 0.6565073533088253,
+                "mean": 0.6390542439132482,
+                "sd": 0.23277920858688772,
+                "mn": 94.70952270911596,
+                "mx": 99.58476185897716,
+                "percentile_99_5": 97.25669770637037,
+                "percentile_00_5": 96.62403652720896
+            },
+            "Hippocampus_L": {
+                "name": "Hippocampus_L",
+                "median": 1.84636530667985,
+                "mean": 1.9518161896059283,
+                "sd": 0.8302735189535639,
+                "mn": 94.33496092371314,
+                "mx": 102.21423780492185,
+                "percentile_99_5": 98.62646504998423,
+                "percentile_00_5": 96.6938739220418
+            },
+            "Hippocampus_R": {
+                "name": "Hippocampus_R",
+                "median": 1.8868438423916487,
+                "mean": 1.9942059068193825,
+                "sd": 0.7818234374981706,
+                "mn": 93.99776562466492,
+                "mx": 102.21423780492185,
+                "percentile_99_5": 98.59433712306313,
+                "percentile_00_5": 96.61976694495122
+            },
+            "BasalGanglia_L": {
+                "name": "BasalGanglia_L",
+                "median": 2.8836922477699787,
+                "mean": 2.7725061353642957,
+                "sd": 0.9135319629638793,
+                "mn": 96.66339727739195,
+                "mx": 104.55490729287513,
+                "percentile_99_5": 101.88631673884187,
+                "percentile_00_5": 99.14158792113794
+            },
+            "BasalGanglia_R": {
+                "name": "BasalGanglia_R",
+                "median": 2.9075882413892558,
+                "mean": 2.7774558834134315,
+                "sd": 0.8811632046987813,
+                "mn": 96.58734619716093,
+                "mx": 104.55490729287513,
+                "percentile_99_5": 101.84518007816627,
+                "percentile_00_5": 99.09555997295105
+            },
+            "HypoThalamus": {
+                "name": "HypoThalamus",
+                "median": 0.8129943638035186,
+                "mean": 0.8254492104090599,
+                "sd": 0.38219332251618504,
+                "mn": 97.21991884877166,
+                "mx": 102.44501302258206,
+                "percentile_99_5": 100.30956612188548,
+                "percentile_00_5": 99.49235874149649
+            },
+            "Glnd_Pineal": {
+                "name": "Glnd_Pineal",
+                "median": 0.38869593040717376,
+                "mean": 0.39166399862921153,
+                "sd": 0.2452963768225747,
+                "mn": 95.38194478784085,
+                "mx": 102.21423780492185,
+                "percentile_99_5": 99.06732578856477,
+                "percentile_00_5": 98.67957769736056
+            },
+            "Glnd_Lacrimal_L": {
+                "name": "Glnd_Lacrimal_L",
+                "median": 1.5668158176322322,
+                "mean": 1.5469896706270165,
+                "sd": 0.4220624692679668,
+                "mn": 92.49022840976185,
+                "mx": 102.44501302258206,
+                "percentile_99_5": 99.13634770088711,
+                "percentile_00_5": 97.60477401932074
+            },
+            "Glnd_Lacrimal_R": {
+                "name": "Glnd_Lacrimal_R",
+                "median": 1.3694070113229486,
+                "mean": 1.382085125642541,
+                "sd": 0.41794998589260535,
+                "mn": 92.00268825689012,
+                "mx": 102.45873852116965,
+                "percentile_99_5": 99.03212996381977,
+                "percentile_00_5": 97.6638268333037
+            },
+            "Ear_Cochlea_L": {
+                "name": "Ear_Cochlea_L",
+                "median": 0.36649083391530723,
+                "mean": 0.37669055491583775,
+                "sd": 0.1866867139534351,
+                "mn": 92.52883489655454,
+                "mx": 97.53011076002647,
+                "percentile_99_5": 94.97088675585044,
+                "percentile_00_5": 94.5979630443037
+            },
+            "Ear_Cochlea_R": {
+                "name": "Ear_Cochlea_R",
+                "median": 0.3763529335625222,
+                "mean": 0.4003962098785761,
+                "sd": 0.17591730480057025,
+                "mn": 92.5163502655243,
+                "mx": 97.53011076002647,
+                "percentile_99_5": 94.95595971084735,
+                "percentile_00_5": 94.55956744068014
+            },
+            "Ear_Inner_L": {
+                "name": "Ear_Inner_L",
+                "median": 0.41458960251655697,
+                "mean": 0.47216433619735027,
+                "sd": 0.21869618189987247,
+                "mn": 92.5163502655243,
+                "mx": 98.0376241740232,
+                "percentile_99_5": 95.01434426158397,
+                "percentile_00_5": 94.54690145307126
+            },
+            "Ear_Inner_R": {
+                "name": "Ear_Inner_R",
+                "median": 0.39566475240572174,
+                "mean": 0.45803940849808633,
+                "sd": 0.19745817061798862,
+                "mn": 92.5163502655243,
+                "mx": 98.0376241740232,
+                "percentile_99_5": 94.99671849905069,
+                "percentile_00_5": 94.54325933223659
+            },
+            "TemporalLobe_L": {
+                "name": "TemporalLobe_L",
+                "median": 6.657254171008169,
+                "mean": 6.4783288140023565,
+                "sd": 1.3337965449981763,
+                "mn": 31.443109251708833,
+                "mx": 104.038314670315,
+                "percentile_99_5": 101.18325066409618,
+                "percentile_00_5": 94.76516082430656
+            },
+            "TemporalLobe_R": {
+                "name": "TemporalLobe_R",
+                "median": 6.65219289796778,
+                "mean": 6.502480843924282,
+                "sd": 1.2903945281306166,
+                "mn": 14.236119458937429,
+                "mx": 103.97713524790015,
+                "percentile_99_5": 101.1835478552202,
+                "percentile_00_5": 94.74114455588555
+            },
+            "BrainStem": {
+                "name": "BrainStem",
+                "median": 6.620723189755765,
+                "mean": 6.604370415940998,
+                "sd": 0.81335661945962,
+                "mn": 19.98934386936448,
+                "mx": 101.1984806269893,
+                "percentile_99_5": 97.9396514228418,
+                "percentile_00_5": 91.40486588547914
+            },
+            "Glnd_Parotid_L": {
+                "name": "Glnd_Parotid_L",
+                "median": 7.526863090563893,
+                "mean": 7.518930244773695,
+                "sd": 0.9452168191141059,
+                "mn": 82.02023518747426,
+                "mx": 95.4979339284464,
+                "percentile_99_5": 93.73159225937624,
+                "percentile_00_5": 86.28387702234457
+            },
+            "Glnd_Parotid_R": {
+                "name": "Glnd_Parotid_R",
+                "median": 7.511558544667089,
+                "mean": 7.502343718837089,
+                "sd": 0.846311719711642,
+                "mn": 82.31353017111162,
+                "mx": 95.84200482315711,
+                "percentile_99_5": 93.58322263866833,
+                "percentile_00_5": 86.15346557844339
+            },
+            "Bone_Mastoid_L": {
+                "name": "Bone_Mastoid_L",
+                "median": 4.8529586252148675,
+                "mean": 4.867200718316194,
+                "sd": 0.8753512938813126,
+                "mn": 37.956476153247905,
+                "mx": 99.58498177816654,
+                "percentile_99_5": 95.71740637561726,
+                "percentile_00_5": 90.89965596900747
+            },
+            "Bone_Mastoid_R": {
+                "name": "Bone_Mastoid_R",
+                "median": 4.689767666728457,
+                "mean": 4.756164485840207,
+                "sd": 0.8697806420484309,
+                "mn": 14.835806394752757,
+                "mx": 99.58498177816654,
+                "percentile_99_5": 95.56695666706288,
+                "percentile_00_5": 90.85871888867354
+            },
+            "Larynx": {
+                "name": "Larynx",
+                "median": 7.848680265962848,
+                "mean": 7.887582624296121,
+                "sd": 1.2315710653413114,
+                "mn": 72.9344254199361,
+                "mx": 87.7876773599101,
+                "percentile_99_5": 85.68884551993057,
+                "percentile_00_5": 77.87611217391175
+            },
+            "Larynx_Glottic": {
+                "name": "Larynx_Glottic",
+                "median": 2.424282580732296,
+                "mean": 2.4403250395359595,
+                "sd": 0.6754242697395124,
+                "mn": 72.9344254199361,
+                "mx": 85.07220806688106,
+                "percentile_99_5": 81.92651362319134,
+                "percentile_00_5": 79.51097390909918
+            },
+            "Larynx_Supraglot": {
+                "name": "Larynx_Supraglot",
+                "median": 2.9828922105835716,
+                "mean": 3.0371733001336136,
+                "sd": 0.6718571855214194,
+                "mn": 77.86713771274574,
+                "mx": 87.34432169918975,
+                "percentile_99_5": 84.89775799377479,
+                "percentile_00_5": 81.89046635681711
+            },
+            "Cerebellum": {
+                "name": "Cerebellum",
+                "median": 6.724604388087052,
+                "mean": 6.726213249411103,
+                "sd": 0.8907665326907851,
+                "mn": 1.8985388586238083,
+                "mx": 101.76906957433647,
+                "percentile_99_5": 97.46615099096152,
+                "percentile_00_5": 90.80911508230163
+            },
+            "Glnd_Submand_L": {
+                "name": "Glnd_Submand_L",
+                "median": 4.167219728413578,
+                "mean": 4.138407921191938,
+                "sd": 1.0259999529514747,
+                "mn": 79.32144076007646,
+                "mx": 89.91587174851986,
+                "percentile_99_5": 87.59573089532499,
+                "percentile_00_5": 83.50002991007074
+            },
+            "Glnd_Submand_R": {
+                "name": "Glnd_Submand_R",
+                "median": 4.156655213132403,
+                "mean": 4.182438395416563,
+                "sd": 1.0429057024365727,
+                "mn": 49.811618829252595,
+                "mx": 89.47168237631661,
+                "percentile_99_5": 87.45728641478826,
+                "percentile_00_5": 83.31786588117802
+            },
+            "Brain": {
+                "name": "Brain",
+                "median": 17.40082567987612,
+                "mean": 17.67005347705975,
+                "sd": 10.619116395774475,
+                "mn": -10.521064025841753,
+                "mx": 112.14947158470216,
+                "percentile_99_5": 104.7797880394963,
+                "percentile_00_5": 87.2567133206217
+            },
+            "SpinalCord": {
+                "name": "SpinalCord",
+                "median": 26.541469449499843,
+                "mean": 28.38310358896525,
+                "sd": 9.38753979649146,
+                "mn": 14.747571115939667,
+                "mx": 93.93218965452034,
+                "percentile_99_5": 91.11699724816025,
+                "percentile_00_5": 62.93841976703725
+            },
+            "Epiglottis": {
+                "name": "Epiglottis",
+                "median": 3.6445654967972416,
+                "mean": 3.6621852427387056,
+                "sd": 0.83551277931029,
+                "mn": 78.25251272772226,
+                "mx": 88.41080683937267,
+                "percentile_99_5": 85.7677817299777,
+                "percentile_00_5": 82.14213412250336
+            },
+            "OralCavity": {
+                "name": "OralCavity",
+                "median": 6.902764984153919,
+                "mean": 7.073329502152154,
+                "sd": 1.2603958550234822,
+                "mn": 7.077655348537204,
+                "mx": 97.21612955003258,
+                "percentile_99_5": 91.93050082806462,
+                "percentile_00_5": 84.93363218709862
+            },
+            "Bone_Mandible_L": {
+                "name": "Bone_Mandible_L",
+                "median": 7.559136810659851,
+                "mean": 7.713092168727737,
+                "sd": 1.3845082062756104,
+                "mn": 76.39523914864216,
+                "mx": 95.1364273987018,
+                "percentile_99_5": 92.53852116767109,
+                "percentile_00_5": 84.90938290257377
+            },
+            "Bone_Mandible_R": {
+                "name": "Bone_Mandible_R",
+                "median": 7.577326374022604,
+                "mean": 7.705249943363795,
+                "sd": 1.3037156650374742,
+                "mn": 75.95558971005218,
+                "mx": 94.94163661152051,
+                "percentile_99_5": 92.50541619689767,
+                "percentile_00_5": 84.88437620598326
+            },
+            "Eso": {
+                "name": "Eso",
+                "median": 9.793266204097009,
+                "mean": 9.969014448829055,
+                "sd": 3.100869760277639,
+                "mn": 58.35294026461733,
+                "mx": 81.5249454135463,
+                "percentile_99_5": 78.02514221346739,
+                "percentile_00_5": 68.14888098139242
+            },
+            "Musc_Const_I": {
+                "name": "Musc_Const_I",
+                "median": 4.65015789398435,
+                "mean": 4.698983834546823,
+                "sd": 0.9074098249443647,
+                "mn": 72.9344254199361,
+                "mx": 85.58209745278904,
+                "percentile_99_5": 82.85751821765966,
+                "percentile_00_5": 78.20699683106811
+            },
+            "Musc_Const_M": {
+                "name": "Musc_Const_M",
+                "median": 4.523956640415591,
+                "mean": 4.5666315699937705,
+                "sd": 1.054506895217563,
+                "mn": 79.31470781882692,
+                "mx": 89.95474409114466,
+                "percentile_99_5": 87.48350477302363,
+                "percentile_00_5": 82.96464890290771
+            },
+            "Musc_Const_S": {
+                "name": "Musc_Const_S",
+                "median": 3.6531460663514608,
+                "mean": 3.703505221001985,
+                "sd": 0.7512566761058466,
+                "mn": 83.9107922105029,
+                "mx": 93.19776131661875,
+                "percentile_99_5": 91.07962813401014,
+                "percentile_00_5": 87.41337047528503
+            }
+        }
+    },
+    "HN1_decoder": {
+        "task": "Task900_HN_decoder1",
+        "type": "DecodingEnsemble",
+        "train_order": 2,
+        "continue_training": false,
+        "fold": "all",
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "decoders": {
+            "MERGED_HN1": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26
+            ]
+        },
+        "supporting": {},
+        "weights_for_decoders": {
+            "decoders": {
+                "MERGED_HN1": 1.0
+            },
+            "supporting": null
+        },
+        "bpr_range_for_decoders": {
+            "MERGED_HN1": {
+                "percentile_00_5": 90.8911903721049,
+                "percentile_99_5": 101.88631673884187,
+                "min": 78.05826630035071,
+                "max": 104.55490729287513,
+                "mean": 4.942046886441346,
+                "std": 0.9135319629638793
+            }
+        },
+        "model_training_setup": {
+            "decoders": {
+                "all": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ],
+                "MERGED_HN1": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "supporting": null,
+            "patch_size": {
+                "MERGED_HN1": [
+                    112,
+                    96,
+                    128
+                ],
+                "all": [
+                    112,
+                    96,
+                    128
+                ]
+            },
+            "batch_size": {
+                "MERGED_HN1": 2,
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task900_HN_decoder1",
+        "decoder_architecture_setup": {
+            "MERGED_HN1": {
+                "base_num_feature": 32,
+                "num_conv_per_stage": [
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2
+                ],
+                "conv_kernel": null,
+                "enable_ema": true,
+                "conv_block": "conv_block"
+            }
+        },
+        "decoder_update": true,
+        "decoders_to_train": [
+            "all"
+        ],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "finetune_encoder": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task900_HN_decoder1/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task900_HN_decoder1/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5
+    },
+    "HN2_decoder": {
+        "task": "Task901_HN_decoder2",
+        "type": "DecodingEnsemble",
+        "train_order": 3,
+        "continue_training": false,
+        "fold": "all",
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "decoders": {
+            "MERGED_HN2": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+            ]
+        },
+        "supporting": {},
+        "weights_for_decoders": {
+            "decoders": {
+                "MERGED_HN2": 1.0
+            },
+            "supporting": null
+        },
+        "bpr_range_for_decoders": {
+            "MERGED_HN2": {
+                "percentile_00_5": 77.87611217391175,
+                "percentile_99_5": 101.1835478552202,
+                "min": 1.8985388586238083,
+                "max": 104.038314670315,
+                "mean": 7.887582624296121,
+                "std": 1.3337965449981763
+            }
+        },
+        "model_training_setup": {
+            "decoders": {
+                "all": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ],
+                "MERGED_HN2": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "supporting": null,
+            "patch_size": {
+                "MERGED_HN2": [
+                    112,
+                    96,
+                    128
+                ],
+                "all": [
+                    112,
+                    96,
+                    128
+                ]
+            },
+            "batch_size": {
+                "MERGED_HN2": 2,
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task901_HN_decoder2",
+        "decoder_architecture_setup": {
+            "MERGED_HN2": {
+                "base_num_feature": 32,
+                "num_conv_per_stage": [
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2
+                ],
+                "conv_kernel": null,
+                "enable_ema": true,
+                "conv_block": "conv_block"
+            }
+        },
+        "decoder_update": true,
+        "decoders_to_train": [
+            "all"
+        ],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "finetune_encoder": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task901_HN_decoder2/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task901_HN_decoder2/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5
+    },
+    "HN3_decoder": {
+        "task": "Task902_HN_decoder3",
+        "type": "DecodingEnsemble",
+        "train_order": 4,
+        "continue_training": false,
+        "fold": "all",
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "decoders": {
+            "MERGED_HN3": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+            ]
+        },
+        "supporting": {},
+        "weights_for_decoders": {
+            "decoders": {
+                "MERGED_HN3": 1.0
+            },
+            "supporting": null
+        },
+        "bpr_range_for_decoders": {
+            "MERGED_HN3": {
+                "percentile_00_5": 62.93841976703725,
+                "percentile_99_5": 104.7797880394963,
+                "min": -10.521064025841753,
+                "max": 112.14947158470216,
+                "mean": 28.38310358896525,
+                "std": 10.619116395774475
+            }
+        },
+        "model_training_setup": {
+            "decoders": {
+                "all": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ],
+                "MERGED_HN3": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "supporting": null,
+            "patch_size": {
+                "MERGED_HN3": [
+                    112,
+                    96,
+                    128
+                ],
+                "all": [
+                    112,
+                    96,
+                    128
+                ]
+            },
+            "batch_size": {
+                "MERGED_HN3": 2,
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task902_HN_decoder3",
+        "decoder_architecture_setup": {
+            "MERGED_HN3": {
+                "base_num_feature": 32,
+                "num_conv_per_stage": [
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2
+                ],
+                "conv_kernel": null,
+                "enable_ema": true,
+                "conv_block": "conv_block"
+            }
+        },
+        "decoder_update": true,
+        "decoders_to_train": [
+            "all"
+        ],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "finetune_encoder": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task902_HN_decoder3/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task902_HN_decoder3/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5
+    }
+}

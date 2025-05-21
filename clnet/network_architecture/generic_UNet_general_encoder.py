@@ -17,23 +17,23 @@ import numpy as np
 
 import torch
 from torch import nn
-import torch.nn.functional as functional
 
 from clnet.network_architecture.initialization import InitWeights_He
-from clnet.network_architecture.generic_UNet import ConvDropoutNormNonlin, StackedConvLayers, BasicResBlock
+from clnet.network_architecture.generic_UNet import ConvDropoutNormNonlin, StackedConvLayers
+from clnet.configuration import default_max_num_features
 
 
 class Generic_UNet_General_Encoder(nn.Module):
     '''
     The downstream path (include bottleneck) of Generic_UNet, return skips of selected levels.
     '''
-    MAX_NUM_FILTERS_3D = 320
+    MAX_NUM_FILTERS_3D = default_max_num_features
     MAX_FILTERS_2D = 480
 
     def __init__(self, input_channels, base_num_features, num_pool, num_conv_per_stage=2,
                  feat_map_mul_on_downscale=2, conv_op=nn.Conv2d, norm_op=nn.BatchNorm2d, norm_op_kwargs=None,
                  dropout_op=nn.Dropout2d, dropout_op_kwargs=None, nonlin=nn.LeakyReLU, nonlin_kwargs=None,
-                 weightInitializer=InitWeights_He(1e-2), pool_op_kernel_sizes=None, conv_kernel_sizes=None,
+                 weight_initializer=InitWeights_He(1e-2), pool_op_kernel_sizes=None, conv_kernel_sizes=None,
                  convolutional_pooling=False, convolutional_upsampling=False, max_num_features=None,
                  basic_block=ConvDropoutNormNonlin, if_full_network=False):
         super(Generic_UNet_General_Encoder, self).__init__()
@@ -53,7 +53,7 @@ class Generic_UNet_General_Encoder(nn.Module):
         self.nonlin_kwargs = nonlin_kwargs
         self.dropout_op_kwargs = dropout_op_kwargs
         self.norm_op_kwargs = norm_op_kwargs
-        self.weightInitializer = weightInitializer
+        self.weight_initializer = weight_initializer
         self.conv_op = conv_op
         self.norm_op = norm_op
         self.dropout_op = dropout_op
@@ -208,6 +208,8 @@ class Generic_UNet_General_Encoder(nn.Module):
         # register all modules properly
         self.conv_blocks_context = nn.ModuleList(self.conv_blocks_context)
         self.td = nn.ModuleList(self.td)
+        if self.weight_initializer is not None:
+            self.apply(self.weight_initializer)
 
     def forward(self, x, skip_feat_list=None):
         if skip_feat_list is None or len(skip_feat_list) == 0:

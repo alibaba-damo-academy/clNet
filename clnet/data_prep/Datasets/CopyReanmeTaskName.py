@@ -3,8 +3,8 @@ import shutil
 from multiprocessing import Pool
 
 
-pth_root = "/nas/dazhou.guo/Data_Partial/DataRaw/training_dat"
-pth_target = "/nas/dazhou.guo/Data_Partial/nnUNet_raw_data"
+pth_root = "PATH/TO/DataRaw/training_dat"
+pth_target = "PATH/TO/nnUNet_raw_data"
 
 dict_order_task = {
     1: 'SuperGeneralEncoder',

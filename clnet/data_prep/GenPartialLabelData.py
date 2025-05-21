@@ -6,8 +6,8 @@ import SimpleITK as sitk
 from multiprocessing import Pool
 
 
-pth_input_root = "/nas/dazhou.guo/Data_Partial/clNet_raw_data"
-pth_output_root = "/nas/dazhou.guo/Data_Partial/clNet_raw_data"
+pth_input_root = "PATH/TO/clNet_raw_data"
+pth_output_root = "PATH/TO/clNet_raw_data"
 
 # datasets = ["Task007_Chest_LungCancer_Organ12", "Task006_Chest_EsoCancer_Organ35", "Task020_StructSeg_Chest_6", "Task019_SegTHOR_4"]
 datasets = ["Task801_AbdomenGE", "Task013_KITS_Kidney"]

@@ -1,0 +1,55 @@
+{
+  "clnet_general_encoder": "GeneralEncoder",
+
+  "GeneralEncoder": {
+    "task": "Task001_SuperGeneralEncoder",
+    "fold": "all",
+    "load_only_encoder": true
+  },
+
+  "Chest1_decoder": {
+    "train_order": 1,
+    "task": "Task903_Chest_decoder1",
+    "continue_training": false,
+    "fold": "all",
+    "decoders": {
+      "MERGED_CHEST1": "1-35"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "Chest2_decoder": {
+    "train_order": 1,
+    "task": "Task904_Chest_decoder2",
+    "continue_training": false,
+    "fold": 0,
+    "decoders": {
+      "MERGED_CHEST2": "1-15"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  }
+}

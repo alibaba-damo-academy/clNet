@@ -1,5 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 08.15.2024
 import glob
 
 import torch.cuda
@@ -38,7 +36,7 @@ def resample_seg(filenames_nii: list, filenames_npy: list, filenames_json: list,
                 axis = None
             seg_cropped = resample_data_or_seg(seg_npy, original_size_of_raw_data_cropped, True, axis, do_separate_z)
         else:
-            seg_tensor = torch.from_numpy(np.array(seg_npy, dtype=np.float16))
+            seg_tensor = torch.from_numpy(np.array(seg_npy, dtype=np.float32))
             seg_tensor = F.interpolate(seg_tensor[None][None], original_size_of_raw_data_cropped, mode="nearest")[0][0]
             seg_cropped = seg_tensor.detach().cpu().numpy().astype(np.int16)
 
@@ -84,22 +82,22 @@ def postprocess_resample_seg(trainer_heads_summarized: dict, output_folder: str,
         processes_gpu.append(p_gpu)
     for p_gpu in processes_gpu:
         p_gpu.join()
-    # try to remove the remaining intermediate files
-    if not save_intermediate_result_for_debug:
-        for case_id in case_ids:
-            # try to locate the remaining intermediate files
-            remaining_bm_files = glob.glob(os.path.join(output_folder, case_id, case_id + "*BodyMask*.nii.gz"))
-            remaining_npy_files = glob.glob(os.path.join(output_folder, case_id, case_id + "*.npy"))
-            remaining_json_files = glob.glob(os.path.join(output_folder, case_id, case_id + "*.json"))
-            for remaining_bm_file in remaining_bm_files:
-                if os.path.isfile(remaining_bm_file):
-                    os.remove(remaining_bm_file)
-            for remaining_npy_file in remaining_npy_files:
-                if os.path.isfile(remaining_npy_file):
-                    os.remove(remaining_npy_file)
-            for remaining_json_file in remaining_json_files:
-                if os.path.isfile(remaining_json_file):
-                    os.remove(remaining_json_file)
+    # # try to remove the remaining intermediate files
+    # if not save_intermediate_result_for_debug:
+    #     for case_id in case_ids:
+    #         # try to locate the remaining intermediate files
+    #         remaining_bm_files = glob.glob(os.path.join(output_folder, case_id, case_id + "*BodyMask*.nii.gz"))
+    #         remaining_npy_files = glob.glob(os.path.join(output_folder, case_id, case_id + "*.npy"))
+    #         # remaining_json_files = glob.glob(os.path.join(output_folder, case_id, case_id + "*.json"))
+    #         for remaining_bm_file in remaining_bm_files:
+    #             if os.path.isfile(remaining_bm_file):
+    #                 os.remove(remaining_bm_file)
+    #         for remaining_npy_file in remaining_npy_files:
+    #             if os.path.isfile(remaining_npy_file):
+    #                 os.remove(remaining_npy_file)
+    #         # for remaining_json_file in remaining_json_files:
+    #         #     if os.path.isfile(remaining_json_file):
+    #         #         os.remove(remaining_json_file)
 
 
 def dump_to_nii(seg_npy, filenames_nii, header):

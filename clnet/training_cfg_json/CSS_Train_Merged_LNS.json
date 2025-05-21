@@ -1,0 +1,55 @@
+{
+  "clnet_general_encoder": "GeneralEncoder",
+
+  "GeneralEncoder": {
+    "task": "Task001_SuperGeneralEncoder",
+    "fold": "all",
+    "load_only_encoder": true
+  },
+
+  "HN_LNS_015": {
+    "train_order": 15,
+    "task": "Task1007_HeadNeck_LNS_18",
+    "continue_training": false,
+    "fold": 0,
+    "decoders": {
+      "HN_LNS": "1-18"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "Chest_LNS_015": {
+    "train_order": 15,
+    "task": "Task1008_Chest_LNS_15",
+    "continue_training": false,
+    "fold": 0,
+    "decoders": {
+      "Chest_LNS": "1-15"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  }
+}

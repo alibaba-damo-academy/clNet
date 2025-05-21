@@ -127,12 +127,12 @@ def main():
     datasets = ["Task003_Liver", "Task006_Lung", "Task007_Pancreas", "Task008_HepaticVessel", "Task009_Spleen", "Task010_Colon",
                 "Task017_BTCV", "Task051_StructSeg19_Task3_Thoracic_OAR", "Task055_SegTHOR", "Task062_NIHPancreas", "Task064_KiTS21",
                 "Task018_PelvicOrgan", "Task1002_FLARE22", "Task011_AMOS", "Task012_WORD", "Task501_TotalSegAbd"]
-    pth_root = "/nas/dazhou.guo/Data_Xiuan/reoriented/"
-    # pth_out = "/nas/dazhou.guo/Data_Partial/nnUNet_raw_data/Task501_SuperGeneralEncoder_HN"
-    # pth_out = "/nas/dazhou.guo/Data_Partial/nnUNet_raw_data/Task502_SuperGeneralEncoder_Chest"
-    # pth_out = "/nas/dazhou.guo/Data_Partial/nnUNet_raw_data/Task503_SuperGeneralEncoder_Abdomen"
-    # pth_out = "/nas/dazhou.guo/Data_Partial/nnUNet_raw_data/Task500_SuperGeneralEncoder_HN"
-    pth_out = "/nas/dazhou.guo/Data_Xiuan/reoriented/Task801_AbdomenGE"
+    pth_root = "PATH/TO/reoriented/"
+    # pth_out = "PATH/TO/nnUNet_raw_data/Task501_SuperGeneralEncoder_HN"
+    # pth_out = "PATH/TO/nnUNet_raw_data/Task502_SuperGeneralEncoder_Chest"
+    # pth_out = "PATH/TO/nnUNet_raw_data/Task503_SuperGeneralEncoder_Abdomen"
+    # pth_out = "PATH/TO/nnUNet_raw_data/Task500_SuperGeneralEncoder_HN"
+    pth_out = "PATH/TO/reoriented/Task801_AbdomenGE"
     if not os.path.exists(os.path.join(pth_out, "imagesTr")):
         os.makedirs(os.path.join(pth_out, "imagesTr"))
     if not os.path.exists(os.path.join(pth_out, "imagesTs")):

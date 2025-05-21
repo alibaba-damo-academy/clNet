@@ -17,6 +17,7 @@ Complete Configuration JSON example:
     "fold": "all",
     "no_mirroring": true,
     "continue_training": false,
+    "decoder_update": false,
     "load_only_encoder": false,
     "full_network": false,
     "pretrain_model_name": "final",
@@ -34,8 +35,16 @@ Complete Configuration JSON example:
       "hn": [32, 3, [3, 3, 3], [3, 3, 3], [3, 3, 3], [3, 3, 3], [3, 3, 3]]
     },
     "decoders": {
-      "totalseg": "1-103",
-      "hn": "142-183"
+      "totalseg": [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+        51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75,
+        76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100,
+        101, 102, 103],
+      "hn": [
+        142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
+        160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178,
+        179, 180, 181, 182, 183]
     },
     "weights_for_decoders":{
       "totalseg": 1,
@@ -71,6 +80,7 @@ Please refer to the following example to prepare the training/testing JSON file.
     "task": "Task016_StructSeg_OAR22",
     "pretrain_model_name": "latest",
     "continue_training": false,
+    "decoder_update": true,
     "finetune_encoder": false,
     "fold": 0,
     "no_mirroring": true,
@@ -134,8 +144,7 @@ Please refer to the following example to prepare the training/testing JSON file.
           "lr": 1e-3,
           "epoch": 500,
           "load_pretrain": true,
-          "prune": true,
-          "ema": true
+          "prune": true
         },
         "Eye_L": [0, 0.5, 1e-3, 500, true, true],
         "Eye_R": [0, 0.5, 1e-3, 500, true],
@@ -195,6 +204,8 @@ Please refer to the following example to prepare the training/testing JSON file.
 - `fold (0)`: The training fold, e.g., 0, 1, 2, 3, 'all'
 - `pretrain_model_name (null)`: Specify the absolute model pth or model keywords, e.g., best, latest, final
 - `continue_training: (false)`: Set to true to load previously trained model and perform continue training 
+- `decoder_update: (true)`: Set to true to update duplicated decoders using only the EMA update (w.o. pruning). 
+Set to false to re-prune the decoder using current training task's dataset. 
 - `finetune_encoder (false)`: Set to true to fine-tune the general encoder. The fine-tuned general encoder is stored separately in for each training head.
 - `no_mirroring (false)`: Set to "true" to ignore mirroring data augmentation
 - `optimizer (AdamW)`: Specify the training optimizer, e.g., SGD, Adam, AdamW
@@ -229,14 +240,15 @@ If decoding head is null or left empty, clNet will not perform training of the d
   - `batch_size`{dict (2)}: Specify the batch size for each decoding head
   - `decoders` {dict}: Specify the training setup for each decoding head.
   - `supporting` {dict}: Specify the training setup for each supporting head.
-    - [`foreground sampling lower rate`, `foreground sampling upper rate`, `LR, epochs`, `load pretrain model`, `prune`]
+    - [`foreground sampling lower rate`, `foreground sampling upper rate`, `LR, epochs`, `load pretrain model`, `prune`,`ema`]
     - Default (simple version): [0.6, 0.8，1e-3, 1000, False, True]
     - Default (detailed version): {
       - foreground_sampling_decay: [0.6, 0.8]，
       - lr: 1e-3, 
       - epoch: 1000, 
       - load_pretrain: False,
-      - prune: True}
+      - prune: True
+      - ema: True}
 - `supporting (null)`: Specify a list of the supporting organ(s)
 
 ***

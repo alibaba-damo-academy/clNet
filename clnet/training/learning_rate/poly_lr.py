@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 08.04.2023
-
 def combined_lr_lambda(epoch, warmup_epochs, max_epochs, initial_lr):
     warmup_lr = initial_lr / 20
     if max_epochs < 1000:

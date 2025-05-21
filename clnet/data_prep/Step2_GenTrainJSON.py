@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 07.20.2023
-
 from collections import OrderedDict
 import os
 import json
@@ -8,7 +5,7 @@ from DatasetOrganIdxList import *
 
 join = os.path.join
 
-pth_root = '/nas/dazhou.guo/Data_Partial/clNet_raw_data/'
+pth_root = 'PATH/TO/clNet_raw_data/'
 
 # This is the Super General Encoder JSON
 task_name = "Task1004_FLARE22_no_PseudoLabel"

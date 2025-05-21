@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 08.20.2023
-
 import time
 import torch.multiprocessing as mp
 
@@ -10,19 +7,21 @@ from clnet.preprocessing.bm_bpr_gen import bm_bpr_gen
 from clnet.inference.utils import *
 from clnet.inference.load_decoder_and_predict_on_device import load_model_and_predict
 from clnet.inference.cfg_parser import cfg_parser_for_inference
-
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 def clnet_inference(clnet_cfg: str, input_folder: str, output_folder: str, task_plan_to_use: str = None, num_threads_preprocessing: int = default_num_threads,
                     disable_tta: bool = True, expected_num_modalities: int = 1, num_threads_nifti_save: int = default_num_threads,
                     overwrite_existing_preprocessing: bool = False, fast: bool = False, overwrite_existing_pred: bool = False, compile_network: bool = True,
                     save_intermediate_result_for_debug: bool = False, all_in_gpu: bool = False, step_size: float = 0.5, disable_mixed_precision: bool = False,
-                    do_not_inference: bool = False, disable_bm_bpr: bool = False):
+                    do_not_inference: bool = False, disable_bm_bpr: bool = False, disable_pruning: bool = False, disable_ema: bool = False):
     start_t = time.time()
     # set multiprocessing start method -> spawn
     mp.set_start_method("spawn", force=True)
     # preprocessing
     maybe_mkdir_p(output_folder)
     case_ids = check_input_folder_and_return_case_ids(input_folder, expected_num_modalities)
+    print("Preprocessing Starts...")
     list_of_lists, bpr_files, bm_files = bm_bpr_gen(input_folder, output_folder, overwrite_existing_preprocessing, num_threads_preprocessing, disable_bm_bpr)
 
     # parse the input cfg json file for inference
@@ -42,22 +41,23 @@ def clnet_inference(clnet_cfg: str, input_folder: str, output_folder: str, task_
                            task_plan_to_use, do_not_inference, case_ids, list_of_lists, bpr_files, bm_files,
                            output_folder, num_threads_preprocessing, num_threads_nifti_save,
                            disable_tta, overwrite_existing_pred, compile_network, save_intermediate_result_for_debug,
-                           all_in_gpu, disable_mixed_precision, step_size)
+                           all_in_gpu, disable_mixed_precision, step_size, disable_pruning, disable_ema)
     # Inference -- supporting
     load_model_and_predict(trainer_class, trainer_heads_summarized, trainer_heads_details, "supporting",
                            task_plan_to_use, do_not_inference, case_ids, list_of_lists, bpr_files, bm_files,
                            output_folder, num_threads_preprocessing, num_threads_nifti_save,
                            disable_tta, overwrite_existing_pred, compile_network, save_intermediate_result_for_debug,
-                           all_in_gpu, disable_mixed_precision, step_size)
+                           all_in_gpu, disable_mixed_precision, step_size, disable_pruning, disable_ema)
     end_t = time.time()
     print("Inference Time: %f" % (end_t - start_t))
+    return trainer_heads_summarized
 
 
 if __name__ == "__main__":
-
-    clnet_cfg_current = "/mnt/nas/suyanzhou.syz/repo/clNet_inference/clnet/training_cfg_json/CSS_GeneralEncoder_ft_for_inference.json"
-    input_folder_current = "/mnt/nas/suyanzhou.syz/dataset/Totalseg_test_example/imagesVal"
-    output_folder_current = "/mnt/nas/suyanzhou.syz/dataset/Totalseg_test_example/imagesVal_pred"
+    
+    clnet_cfg_current = "./training_cfg_json/CSS_Train_Merged_Bone_Task906_all.json"
+    input_folder_current = "./test_data/images"
+    output_folder_current = "./test_data/images_bone_pred_new"
 
     clnet_inference(clnet_cfg_current, input_folder_current, output_folder_current, fast=False,
                     overwrite_existing_preprocessing=False, overwrite_existing_pred=True,

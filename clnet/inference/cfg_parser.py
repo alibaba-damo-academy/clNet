@@ -110,6 +110,7 @@ def cfg_parser_for_inference(clnet_cfg: str, plans_identifier: str = default_pla
             if isinstance(tmp_patch_size, list) and len(tmp_patch_size) == 3 and head != "all":
                 trainer_heads_summarized["patch_size"][head] = tmp_patch_size
         trainer_heads_summarized['bpr_range'].update(task_dict[task]["bpr_range_for_decoders"])
+        trainer_heads_summarized['bpr_cls_details'] = task_dict["GeneralEncoder"]["bpr_cls_details"]
 
     return trainer_class, trainer_heads_summarized, trainer_heads_details
 
@@ -193,9 +194,9 @@ def cfg_parser_for_device(task_dict, summarized_dict, heads_to_pred, decoder_or_
 
 
 if __name__ == "__main__":
-    # clnet_cfg = "/nas/dazhou.guo/Projects/clNet/clnet/training_cfg_json/CSS_PL_ALL.json"
+    # clnet_cfg = "PATH/TO/clNet/clnet/training_cfg_json/CSS_PL_ALL.json"
     # heads_to_pred = ["decoder1", "decoder2", "decoder3", "decoder10", "decoder7"]
-    clnet_cfg = "/nas/dazhou.guo/Projects/clNet/clnet/training_cfg_json/CSS_StructSeg_GEv1.json"
+    clnet_cfg = "PATH/TO/clNet/clnet/training_cfg_json/CSS_StructSeg_GEv1.json"
     heads_to_pred = ["StructSeg_V1"]
     trainer_class, trainer_heads_summarized, trainer_heads_details = cfg_parser_for_inference(clnet_cfg, default_plans_identifier, None)
 

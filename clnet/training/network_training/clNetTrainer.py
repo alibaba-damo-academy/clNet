@@ -1,5 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 03.01.2023
 import sys
 import copy
 
@@ -17,14 +15,23 @@ from datetime import datetime
 import numpy as np
 from sklearn.model_selection import KFold
 
-import torch
-
-if hasattr(torch, "_dynamo"):
+try:
     from torch._dynamo import OptimizedModule
-else:
+except ModuleNotFoundError as e:
+    # This exception is raised if the `torch._dynamo` module does not exist.
+    print(f"ModuleNotFoundError: {e}. It seems `torch._dynamo` is not available in your PyTorch installation.")
     OptimizedModule = None
-from torch import nn
+except ImportError as e:
+    # This exception is raised if `OptimizedModule` is not found within the `torch._dynamo` module.
+    print(f"ImportError: {e}. The `OptimizedModule` class might not be present in `torch._dynamo`.")
+    OptimizedModule = None
+except Exception as e:
+    # Catches any other unexpected exceptions.
+    print(f"An unexpected exception occurred: {e}")
+    OptimizedModule = None
+
 import torch.distributed as dist
+import torch.amp
 from torch.amp import autocast
 import torch.backends.cudnn as cudnn
 from torch.nn.functional import interpolate
@@ -32,6 +39,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 
 import clnet
 from clnet.configuration import *
+from clnet.sparse_conv.SparseConvWraper import *
 from clnet.utilities.nd_softmax import softmax_helper
 from clnet.utilities.distributed import AllGatherGrad
 from clnet.utilities.tensor_utilities import sum_tensor
@@ -48,6 +56,7 @@ from clnet.network_architecture.custom_modules.pruning_modules import perform_ne
 from batchgenerators.utilities.file_and_folder_operations import *
 
 matplotlib.use("agg")
+torch.backends.cudnn.benchmark = True
 
 
 class clNetTrainer(object):
@@ -78,9 +87,17 @@ class clNetTrainer(object):
 
         self.unpack_data = unpack_data
         self.epoch = 0
+        self.prune_repeat_flag = False
         self.local_rank = 0
         self.also_val_in_tr_mode = False
-
+        # time estimation
+        self.time_data_loading = []
+        self.time_data_target = []
+        self.time_data_to_cuda = []
+        self.time_train_forward = []
+        self.time_train_backward = []
+        self.time_loss = []
+        # time estimation
         self.stage = stage
         self.experiment_name = self.__class__.__name__
         self.plans_file = plans_file
@@ -149,8 +166,17 @@ class clNetTrainer(object):
         self.pin_memory = True
         #
         self.pretrained_network_continual_learning = pretrained_network_continual_learning
-        self.online_eval_foreground_dc = {}
-        self.online_eval_foreground_dsc_percentile = {}
+        self.online_eval_foreground_dsc_pruning = {}
+
+        self.online_eval_tp = {}
+        self.online_eval_fp = {}
+        self.online_eval_fn = {}
+        self.all_val_eval_metrics = {}
+
+        self.online_eval_tp_ema = {}
+        self.online_eval_fp_ema = {}
+        self.online_eval_fn_ema = {}
+        self.all_val_eval_metrics_ema = {}
 
         # default is set True to all decoders.
         # If the mean DSC drop is more than default_threshold, then the decoder is done pruning.
@@ -161,11 +187,12 @@ class clNetTrainer(object):
         self.prune_decoder_sparsity_before_prune = {}
         # If the decoder requires pruning
         self.prune_if_to_perform = {}
+        self.state_dict_unpruned = {}
         # The initial state dict before pruning
-        # |--> lottery-ticket pruning -- use the un-pruned weights to re-initialize the weight.
-        self.initial_state_dict_before_prune = {}
+        # |--> lottery-ticket pruning -- use the state_dict weights before each prune to re-initialize the weight.
+        self.state_dict_lth_reinit_prune = {}
         # save the previous state of the decoder --> restore the decoder if the performance drop exceeds the threshold.
-        self.previous_state_dict_prune = {}
+        self.state_dict_before_each_prune = {}
         # the final pruning ratio of each head
         self.prune_ratios_final_for_each_decoder = {}
         self.run_epoch_before_prune = False
@@ -174,7 +201,9 @@ class clNetTrainer(object):
         self.prune_ratios_to_try = {}
         self.prune_repeat_times = {}
         self.prune_ratio_in_percentage = {}
-        self.prune_eval_foreground_dsc_before_pruning_moving_average = {}
+        self.prune_all_val_eval_metrics_moving_average = {}
+
+        self.flag_convert_to_sparse = {}
 
         if decoder_or_support != "load_all":
             model_training_setup = self.train_dict["model_training_setup"][decoder_or_support]
@@ -204,7 +233,7 @@ class clNetTrainer(object):
                     task_foreground_classes += fg_cls
                     self.prune_repeat_times[head] = default_pruning_repeat_times
         else:
-            fg_cls = self.train_dict["decoders"][self.head_to_train]
+            fg_cls = self.train_dict[self.decoder_or_support][self.head_to_train]
             fg_cls = [fg_cls] if not isinstance(fg_cls, list) else fg_cls
             task_foreground_classes += fg_cls
             self.prune_repeat_times[self.head_to_train] = default_pruning_repeat_times
@@ -300,6 +329,7 @@ class clNetTrainer(object):
         else:
             raise RuntimeError("invalid patch size in plans file: %s" % str(self.patch_size))
 
+
     # ###################################################### Continue Training ######################################################
     def _try_to_find_model(self, is_training=False):
         # We only search for the model in the training folder.
@@ -334,7 +364,7 @@ class clNetTrainer(object):
 
         self.all_tr_losses, self.all_val_losses, self.all_val_losses_tr_mode, self.all_val_eval_metrics = saved_model["plot_stuff"]
         if self.epoch != len(self.all_tr_losses):
-            self.print_to_log_file("WARNING in loading checkpoint: self.epoch != len(self.all_tr_losses).")
+            self.print_to_log_file("\033[33mWarning: Loading checkpoint: self.epoch != len(self.all_tr_losses).\033[0m")
             self.epoch = len(self.all_tr_losses)
             self.all_tr_losses = self.all_tr_losses[:self.epoch]
             self.all_val_losses = self.all_val_losses[:self.epoch]
@@ -397,8 +427,8 @@ class clNetTrainer(object):
                 if key.startswith("encoder."):
                     key = key[len("encoder."):]
                     encoder_dict[key] = value
-                elif key.startswith("decoder_init."):
-                    key = key[len("decoder_init."):]
+                elif key.startswith("decoder_dict.other."):
+                    key = key[len("decoder_dict.other."):]
                     decoder_init[key] = value
                 # get the decoding params, if any
                 elif key.startswith("decoder_dict."):
@@ -445,7 +475,7 @@ class clNetTrainer(object):
                 # 1. select params for encoder
                 self._load_pretrained_param_encoder(encoder_dict, pretrained_cleaned_dict)
                 # 2. try to load params from if not "flag" "load_only_encoder" is False.
-                self._load_pretrained_params_encoder_ema(ema_all_dict, load_from_ema)
+                # self._load_pretrained_params_encoder_ema(ema_all_dict, load_from_ema)
                 # # 3. try to init each decoder using "decoder_init"
                 # self._load_pretrained_params_init_decoder(decoder_init)
 
@@ -477,6 +507,45 @@ class clNetTrainer(object):
                 self.load_continue_training(saved_model)
             self._load_prune_stuff(saved_model)
 
+        elif is_training:
+            if self.decoder_or_support == "decoders" and self.train_dict["model_training_setup"]["supporting"] is not None \
+                    and len(self.train_dict["model_training_setup"]["supporting"]) > 0:
+                self.print_to_log_file("Skip training Task %s -- '%s'." % (self.task, self.decoder_or_support))
+                self.print_to_log_file("Directly train the decoding head using 'supporting'")
+            else:
+                # If the pre-trained model is not found, then re-train "all" decoding heads using default training setup
+                self.print_to_log_file("\033[31mFile Not Found: Task %s -- %s, Pretrained model is NOT found. "
+                                       "Re-train the ALL decoding path using default training setup.\033[0m" %
+                                       (self.task, self.decoder_or_support))
+                # Reload the setting stored in "bak" -- in case users wish to use the training setup but no model found.
+                if self.train_dict["type"] == "GeneralEncoder" and self.train_dict["load_only_encoder"]:
+                    for key in self.train_dict["bak"]:
+                        self.train_dict[key] = self.train_dict["bak"][key]
+                # Reset the LR and EPOCHS of the decoders
+                sampling_decay = sorted(default_sampling_decay, reverse=True)
+                default_training_setup = sampling_decay + [default_lr, default_max_epoch, default_load_from_decoder,
+                                                           default_prune_decoder, default_enable_decoder_ema]
+                if self.train_dict["decoders"] is not None and len(self.train_dict["decoders"]) > 0 and self.decoder_or_support == "decoders":
+                    self.train_dict["model_training_setup"]["decoders"] = {"all": copy.deepcopy(default_training_setup)}
+                    self.oversample_foreground_percent = sampling_decay
+                    self.ofp = sampling_decay[0]
+                    self.initial_lr = default_lr
+                    self.max_num_epochs = default_max_epoch
+                    self.load_pretrained_decoder = False
+                # Reset the LR and EPOCHS of the supporting
+                if self.train_dict["model_training_setup"]["supporting"] is not None and len(self.train_dict["model_training_setup"]["supporting"]) > 0 \
+                        and self.decoder_or_support == "supporting":
+                    self.train_dict["model_training_setup"]["supporting"] = {"all": copy.deepcopy(default_training_setup)}
+                    self.oversample_foreground_percent = sampling_decay
+                    self.ofp = sampling_decay[0]
+                    self.initial_lr = default_lr
+                    self.max_num_epochs = default_max_epoch
+                    self.load_pretrained_decoder = False
+                del default_training_setup
+                # Set "was_initialized" to False, otherwise the "trainer" will not be initialized.
+                self.was_initialized = False
+                # Re-initialize the "trainer"
+                self.initialize()
 
     def _load_prune_stuff(self, saved_model):
         if "prune_stuff" in saved_model:
@@ -494,18 +563,15 @@ class clNetTrainer(object):
                 if "prune_ratio_in_percentage" in saved_model["prune_stuff"]:
                     self.prune_ratio_in_percentage = saved_model["prune_stuff"]["prune_ratio_in_percentage"]
                     for decoder in self.prune_ratio_in_percentage:
-                        if decoder in self.train_dict["decoders"]:
+                        if decoder in self.train_dict[self.decoder_or_support]:
                             self.prune_ratios_to_try[decoder] = self.get_prune_ratio(default_pruning_percentages_to_try)
 
                 if "prune_start_epoch" in saved_model["prune_stuff"]:
                     self.prune_start_epoch = saved_model["prune_stuff"]["prune_start_epoch"]
 
-                if "online_eval_foreground_dsc_percentile" in saved_model["prune_stuff"]:
-                    self.online_eval_foreground_dsc_percentile = saved_model["prune_stuff"]["online_eval_foreground_dsc_percentile"]
-
-                if "prune_eval_foreground_dsc_before_pruning_moving_average" in saved_model["prune_stuff"]:
-                    self.prune_eval_foreground_dsc_before_pruning_moving_average = \
-                        saved_model["prune_stuff"]["prune_eval_foreground_dsc_before_pruning_moving_average"]
+                if "prune_all_val_eval_metrics_moving_average" in saved_model["prune_stuff"]:
+                    self.prune_all_val_eval_metrics_moving_average = \
+                        saved_model["prune_stuff"]["prune_all_val_eval_metrics_moving_average"]
 
             if "prune_ratios_final_for_each_decoder" in saved_model["prune_stuff"]:
                 self.prune_ratios_final_for_each_decoder = saved_model["prune_stuff"]["prune_ratios_final_for_each_decoder"]
@@ -547,8 +613,8 @@ class clNetTrainer(object):
             self.network.encoder.load_state_dict(encoder_dict_to_load)  # strict=True
             self.print_to_log_file("Loading General Encoder Parameters: %d / %d" % (len(init_encoder_dict), len(encoder_dict_to_load)))
         except RuntimeError:
-            error_txt = "General Encoder: Can NOT load pretrained model. Please check 1) Task name, " \
-                        "2) Network Architecture, and 3) Numer of Convs Per Stage"
+            error_txt = "\033[31mError: Can NOT load Genernal Encoder pretrained model. Please check 1) Task name, " \
+                        "2) Network Architecture, and 3) Numer of Convs Per Stage\033[0m"
             # We raise error here, because we must have the General Encoder
             raise RuntimeError(error_txt)
 
@@ -575,7 +641,8 @@ class clNetTrainer(object):
                     try:
                         self.network.decoder_dict[current_decoder].load_state_dict(decoder_dict_to_load, strict=False)
                     except RuntimeError:
-                        error_txt = "Decoding heads {}: Can NOT be initialized using pretrained weights, using He-Init instead".format(current_decoder)
+                        error_txt = "\033[91mWarning: Decoding heads {}: Can NOT be initialized using pretrained weights, " \
+                                    "using 'He-Init' instead\033[0m".format(current_decoder)
                         # We will skip loading
                         self.print_to_log_file(error_txt)
 
@@ -585,9 +652,24 @@ class clNetTrainer(object):
         # try to load pre-trained weight for each decoder
         for current_decoder in self.train_dict["decoders"]:
             if current_decoder not in decoder_all_dict:
-                warn_txt = "Decoding heads %s: Can NOT be found in the pretrained model. Please check " \
-                           "1) Decoding head's name, " \
-                           "2) Network Architecture, and 3) Numer of Convs Per Stage" % current_decoder
+                warn_txt = "\033[31mModel Not Found: Decoding heads Task '{}'-'{}': " \
+                           "Can NOT be found in the pretrained model. Please check " \
+                           "1) Decoding head's name (Case Sensitive), " \
+                           "2) Network Architecture, and 3) Numer of Convs Per Stage\033[0m.\n" \
+                           "Yet, the decoder is not used to support other decoders. " \
+                           "The training process continues.".format(self.task, current_decoder)
+                # To check if the missing/unmatched decoder is used to support other organ segmentation.
+                # If yes, then we raise error to stop the process. Otherwise, we will skip loading.
+                for try_task in self.task_dict:
+                    if "supporting" in self.task_dict[try_task]:
+                        for supported_decoder in self.task_dict[try_task]["supporting"]:
+                            if current_decoder in self.task_dict[try_task]["supporting"][supported_decoder]:
+                                raise RuntimeError("\033[91mError: Decoding heads Task '{}'-'{}': Can NOT be found in the pretrained model. "
+                                                   "It is used to support Task '{}'-'{}' segmentation"
+                                                   "Please check  1) Decoding head's name (Case Sensitive), "
+                                                   "2) Network Architecture, and 3) Numer of Convs Per Stage.\n"
+                                                   "We 'raise' ERROR to stop the process, as it could confuse the decoder's supporting logic.\033[0m".
+                                                   format(self.task, current_decoder, try_task, supported_decoder))
                 self.print_to_log_file(warn_txt)
                 continue
             # try to locate the pre-trained weights for the current decoder
@@ -610,16 +692,16 @@ class clNetTrainer(object):
                             current_decoder + "." + k + "_mask" not in decoder_all_dict:
                         decoder_dict_to_load[k + "_mask"] = init_decoder_dict[current_decoder + "." + k + "_mask"]
 
-                self.print_to_log_file("Loading '%s' Decoding head -- Task '%s' - '%s'" %
+                self.print_to_log_file("Loading '%s' Decoding head -- Task '%s'-'%s'" %
                                        (self.train_dict["pretrain_model_name"], self.task, current_decoder))
                 try:
                     self.network.decoder_dict[current_decoder].load_state_dict(decoder_dict_to_load)
                 except RuntimeError:
-                    error_txt = "Decoding heads %s: Can NOT load pretrained model. Please check " \
+                    warn_txt = "\033[33mWarning: Decoding heads %s: Can NOT load pretrained model. Please check " \
                                 "1) Decoding head's name, " \
-                                "2) Network Architecture, and 3) Numer of Convs Per Stage" % current_decoder
+                                "2) Network Architecture, and 3) Numer of Convs Per Stage\033[0m" % current_decoder
                     # We will skip loading
-                    self.print_to_log_file(error_txt)
+                    self.print_to_log_file(warn_txt)
 
     def _load_pretrained_params_supporting(self, supporting_all_dict):
         # get the initial state_dict of the "self.network"
@@ -627,9 +709,9 @@ class clNetTrainer(object):
         # try to load pre-trained weight for each decoder
         for current_decoder in self.train_dict["supporting"]:
             if current_decoder not in supporting_all_dict:
-                warn_txt = "Supporting heads %s: Can NOT be found in the pretrained model. Please check " \
+                warn_txt = "\033[31mModel Not Found: Supporting heads %s: Can NOT be found in the pretrained model. Please check " \
                            "1) Supporting head's name, " \
-                           "2) Network Architecture, and 3) Numer of Convs Per Stage" % current_decoder
+                           "2) Network Architecture, and 3) Numer of Convs Per Stage\033[0m" % current_decoder
                 self.print_to_log_file(warn_txt)
                 continue
             # try to locate the pre-trained weights for the current decoder
@@ -655,9 +737,9 @@ class clNetTrainer(object):
                 try:
                     self.network.supporting_dict[current_decoder].load_state_dict(supporting_dict_to_load)
                 except RuntimeError:
-                    error_txt = "Supporting heads %s: Can NOT load pretrained model. Please check " \
+                    error_txt = "\033[33mWarning: Supporting heads %s: Can NOT load pretrained model. Please check " \
                                 "1) Decoding & Supporting head's name, " \
-                                "2) Network Architecture, and 3) Numer of Convs Per Stage" % current_decoder
+                                "2) Network Architecture, and 3) Numer of Convs Per Stage\033[0m" % current_decoder
                     # We will skip loading
                     self.print_to_log_file(error_txt)
 
@@ -674,7 +756,6 @@ class clNetTrainer(object):
             for support in self.train_dict["model_training_setup"]["supporting"]:
                 if self.train_dict["model_training_setup"]["supporting"][support] is not None and \
                         self.train_dict["model_training_setup"]["supporting"][support][-1]:
-                    flag_load_from_ema_from_cfg_json = True
                     break
 
         if "encoder_architecture_setup" in self.train_dict and self.train_dict["encoder_architecture_setup"]["enable_ema"] and len(ema_all_dict) > 0:
@@ -692,26 +773,23 @@ class clNetTrainer(object):
                             break
             if load_model_weight_from_ema:
                 if ema_contain_zero_weights:
-                    self.print_to_log_file("EMA Loading General Encoder: Found zero weights. "
-                                           "This will result in NO PREDICTION! Stop loading General Encoder EMA weights!")
-                elif not flag_load_from_ema_from_cfg_json:
-                    self.print_to_log_file("EMA weights are NOT loaded to General Encoder. "
-                                           "The EMA updating is not enabled in the cfg JSON file.")
+                    self.print_to_log_file("\033[33mWarning: EMA Loading General Encoder: Found zero weights. "
+                                           "This will result in NO PREDICTION! Stop loading General Encoder EMA weights!\033[0m")
                 else:
                     try:
                         self.network.encoder.load_state_dict(ema_dict_to_load)
                         self.print_to_log_file("EMA Loading General Encoder using Parameters: %d / %d" % (len(init_encoder_ema), len(ema_dict_to_load)))
                     except RuntimeError:
-                        error_txt = "EMA General Encoder : Can NOT load pretrained model. Please check 1) Task name, " \
-                                    "2) Network Architecture, and 3) Numer of Convs Per Stage"
+                        error_txt = "\033[33mWarning: Can NOT load EMA General Encoder pretrained model. Please check 1) Task name, " \
+                                    "2) Network Architecture, and 3) Numer of Convs Per Stage\033[0m"
                         raise RuntimeError(error_txt)
             else:
                 try:
                     self.network.ema_dict["general_encoder"].load_state_dict(ema_dict_to_load)
                     self.print_to_log_file("EMA Loading General Encoder Parameters: %d / %d" % (len(init_encoder_ema), len(ema_dict_to_load)))
                 except RuntimeError:
-                    warning_txt = "EMA General Encoder: Can NOT load pretrained model. Please check 1) Task name, " \
-                                  "2) Network Architecture, and 3) Numer of Convs Per Stage"
+                    warning_txt = "\033[33mWarning: EMA General Encoder: Can NOT load pretrained model. Please check 1) Task name, " \
+                                  "2) Network Architecture, and 3) Numer of Convs Per Stage\033[0m"
                     self.print_to_log_file(warning_txt)
 
     def _load_pretrained_params_decoder_ema(self, ema_all_dict, load_from_ema):
@@ -757,11 +835,11 @@ class clNetTrainer(object):
 
                         if load_from_ema:
                             if ema_contain_zero_weights:
-                                self.print_to_log_file("EMA Loading Decoding head %s: Found zero weights. "
-                                                       "This will result in NO PREDICTION! Stop loading EMA weights!" % current_decoder)
+                                self.print_to_log_file("\033[33mWarning: EMA Loading Decoding head %s: Found zero weights. "
+                                                       "This will result in NO PREDICTION! Stop loading EMA weights!\033[0m" % current_decoder)
                             elif not flag_load_from_ema_from_cfg_json:
-                                self.print_to_log_file("EMA weights are NOT loaded to Decoder %s "
-                                                       "The EMA updating is not enabled in the cfg JSON file." % current_decoder)
+                                self.print_to_log_file("\033[33mWarning: EMA weights are NOT loaded to Decoder %s "
+                                                       "The EMA updating is not enabled in the cfg JSON file.\033[0m" % current_decoder)
                             else:
                                 # try to load the weights from ema for the decoder. If it fails, then we will skip
                                 try:
@@ -769,9 +847,9 @@ class clNetTrainer(object):
                                     self.print_to_log_file("Loading '%s' EMA to Decoder -- Task '%s' - '%s'" %
                                                            (self.train_dict["pretrain_model_name"], self.task, current_decoder))
                                 except RuntimeError:
-                                    error_txt = "EMA loading heads %s: Can NOT load pretrained EMA model. Please check " \
+                                    error_txt = "\033[33mWarning: EMA loading heads %s: Can NOT load pretrained EMA model. Please check " \
                                                 "1) Decoding head's name, " \
-                                                "2) Network Architecture, and 3) Numer of Convs Per Stage" % current_decoder
+                                                "2) Network Architecture, and 3) Numer of Convs Per Stage\033[0m" % current_decoder
                                     # We will skip loading
                                     self.print_to_log_file(error_txt)
                         else:
@@ -781,9 +859,9 @@ class clNetTrainer(object):
                                 self.print_to_log_file("Loading '%s' EMA to EMA -- Task '%s' - '%s'" %
                                                        (self.train_dict["pretrain_model_name"], self.task, current_decoder))
                             except RuntimeError:
-                                error_txt = "EMA loading heads %s: Can NOT load pretrained EMA model. Please check " \
+                                error_txt = "\033[33mWarning: EMA loading heads %s: Can NOT load pretrained EMA model. Please check " \
                                             "1) Decoding head's name, " \
-                                            "2) Network Architecture, and 3) Numer of Convs Per Stage" % current_decoder
+                                            "2) Network Architecture, and 3) Numer of Convs Per Stage\033[0m" % current_decoder
                                 # We will skip loading
                                 self.print_to_log_file(error_txt)
 
@@ -821,7 +899,7 @@ class clNetTrainer(object):
                 self.task_dict, self.num_input_channels, self.base_num_features, num_pool=len(self.net_num_pool_op_kernel_sizes),
                 feat_map_mul_on_downscale=2, conv_op=conv_op, norm_op=norm_op, norm_op_kwargs=norm_op_kwargs, dropout_op=dropout_op,
                 dropout_op_kwargs=dropout_op_kwargs, nonlin=net_nonlin, nonlin_kwargs=net_nonlin_kwargs, deep_supervision=True,
-                dropout_in_localization=False, final_nonlin=lambda x: x, weightInitializer=InitWeights_He(1e-2), upscale_logits=False,
+                dropout_in_localization=False, final_nonlin=lambda x: x, weight_initializer=InitWeights_He(1e-2), upscale_logits=False,
                 convolutional_pooling=True, convolutional_upsampling=True)
             # Initialize the network with pruning capability -> adding "weight_orig" and "weight_mask", and change the hook from "weight" to "weight_orig"
             perform_network_initialization_with_pruning_capability(self.network)
@@ -835,7 +913,7 @@ class clNetTrainer(object):
             network = self.network
 
         for decoder in network.decoder_dict:
-            if decoder in self.train_dict["decoders"]:
+            if decoder in self.train_dict[self.decoder_or_support]:
                 if decoder not in self.prune_ratio_in_percentage:
                     self.prune_ratio_in_percentage[decoder] = self._get_prune_percentage_based_on_default_base_num_feature(decoder)
                 self.prune_ratios_to_try[decoder] = self.get_prune_ratio(self.prune_ratio_in_percentage[decoder])
@@ -925,6 +1003,7 @@ class clNetTrainer(object):
         self.data_aug_params["num_cached_per_thread"] = max(6, default_num_threads // 2)
         self.data_aug_params["normalization_schemes"] = self.normalization_schemes
 
+
     # ###################################################### Inference Preprocess Methods ######################################################
     def preprocess_patient(self, input_files, seg_files=None, bpr_range=None):
         from clnet.training.model_restore import recursive_find_python_class
@@ -989,6 +1068,58 @@ class clNetTrainer(object):
             self.network.set_do_ds(ds)  # ! recover do_ds
         return ret
 
+
+    # ###################################################### Other Methods ######################################################
+    def _plot_network_architecture(self):
+        if isinstance(self.network, DDP):
+            network = self.network.module
+        else:
+            network = self.network
+        if OptimizedModule is not None:
+            if isinstance(network, OptimizedModule):
+                network = network._orig_mod
+        # Always print out the general encoder architecture
+        self.print_to_log_file(network.encoder)
+        if self.head_to_train == "all":
+            if self.decoder_or_support == "decoders":
+                for decoder in self.train_dict["decoders"]:
+                    self.print_to_log_file("%s - %s Network Architecture" % (decoder, self.decoder_or_support))
+                    self.print_to_log_file(network.decoder_dict[decoder])
+            else:
+                for decoder in self.train_dict["supporting"]:
+                    self.print_to_log_file("%s - %s Network Architecture" % (decoder, self.decoder_or_support))
+                    self.print_to_log_file(network.supporting_dict[decoder])
+        else:
+            if self.decoder_or_support == "decoders":
+                self.print_to_log_file("%s - %s Network Architecture" % (self.head_to_train, self.decoder_or_support))
+                self.print_to_log_file(network.decoder_dict[self.head_to_train])
+            else:
+                self.print_to_log_file("%s - %s Network Architecture" % (self.head_to_train, self.decoder_or_support))
+                self.print_to_log_file(network.supporting_dict[self.head_to_train])
+
+    def save_debug_information(self):
+        # saving some debug information
+        dct = OrderedDict()
+        for k in self.__dir__():
+            if not k.startswith("__"):
+                if not callable(getattr(self, k)):
+                    dct[k] = str(getattr(self, k))
+        del dct['plans']
+        del dct['intensity_properties']
+        del dct['dataset']
+        del dct['dataset_tr']
+        del dct['dataset_val']
+        save_json(dct, join(self.output_folder, "debug.json"))
+        if "encoder_architecture_setup" in self.train_dict:
+            if "num_conv_per_stage" in self.train_dict["encoder_architecture_setup"]:
+                conv_per_stage = self.train_dict["encoder_architecture_setup"]["num_conv_per_stage"]
+                self.plans["plans_per_stage"]["conv_per_stage"] = conv_per_stage
+        import shutil
+        try:
+            shutil.copy(self.plans_file, join(self.output_folder_base, "plans.{}".format(self.plans_file.split('.')[-1])))
+        except shutil.SameFileError:
+            pass
+
     def update_fold(self, fold):
         """
         used to swap between folds for inference (ensemble of models from cross-validation)
@@ -1008,13 +1139,22 @@ class clNetTrainer(object):
                 self.output_folder = join(self.output_folder, "fold_%s" % str(fold))
             self.fold = fold
 
+    def get_prune_ratio(self, prune_ratio_in_percentage):
+        prune_ratios_to_try = []
+        for i, percentage in enumerate(prune_ratio_in_percentage):
+            if i == 0:
+                prune_ratios_to_try.append(percentage / 100.0)
+            else:
+                prune_ratios_to_try.append(1 - (1 - percentage / 100) / (1 - prune_ratio_in_percentage[i - 1] / 100.))
+        return prune_ratios_to_try
+
     def check_decoder_sparsity(self):
         if isinstance(self.network, DDP):
             network = self.network.module
         else:
             network = self.network
 
-        for decoder in self.train_dict["decoders"]:
+        for decoder in self.train_dict[self.decoder_or_support]:
             self.prune_decoder_sparsity_before_prune[decoder] = self.count_masking_ratio(network.decoder_dict[decoder])
             if self.prune_decoder_sparsity_before_prune[decoder] > default_pruning_percentages_to_try[0]:
                 self.prune_ratio_in_percentage[decoder].append(self.prune_decoder_sparsity_before_prune[decoder])
@@ -1023,6 +1163,18 @@ class clNetTrainer(object):
             elif 0 < self.prune_decoder_sparsity_before_prune[decoder] < default_pruning_percentages_to_try[0]:
                 self.prune_ratio_in_percentage[decoder][0] = self.prune_decoder_sparsity_before_prune[decoder]
 
+    def reset_pruning_mask(self, head):
+        if isinstance(self.network, DDP):
+            decoder = self.network.module.decoder_dict[head]
+        else:
+            decoder = self.network.decoder_dict[head]
+        for name, param in decoder.named_buffers():
+            if name.endswith('weight_mask'):
+                with torch.no_grad():
+                    param.fill_(1.0)
+            if name.endswith('bias_mask'):
+                with torch.no_grad():
+                    param.bias_mask.fill_(1.0)
 
     def count_masking_ratio(self, model):
         if isinstance(model, DDP):
@@ -1053,7 +1205,78 @@ class clNetTrainer(object):
                     else:
                         return float(masking_ratio.numpy())
         except RuntimeError:
-            self.print_to_log_file("CANNOT measure masking percentage")
+            self.print_to_log_file("\033[33mWaring: Can NOT measure masking percentage\033[0m")
+
+    def check_model_similarity(self, model1, model2):
+        mask_same = "Same"
+        parm_same = "Same"
+        if hasattr(model1, "named_buffers"):
+            model2_dict = dict(model2.named_buffers())
+            for name, param in model1.named_buffers():
+                if name in model2_dict:
+                    if not torch.equal(param.data, model2_dict[name]):
+                        mask_same = "Diff"
+
+        if hasattr(model1, "named_parameters"):
+            model2_dict = dict(model2.named_parameters())
+            for name, param in model1.named_parameters():
+                if name in model2_dict:
+                    if not torch.equal(param.data, model2_dict[name]):
+                        parm_same = "Diff"
+
+        self.print_to_log_file("Mask -- ", mask_same, "Param -- ", parm_same)
+
+    def gen_target_dict_by_heads(self, target, head_to_train=None):
+        ret_target = {}
+        if head_to_train is None:
+            head_to_train = self.head_to_train
+        if head_to_train == "all":
+            head_list = list(self.train_dict["decoders"].keys()) if self.decoder_or_support == "decoders" else list(self.train_dict["supporting"].keys())
+            for idx, head in enumerate(head_list):
+                ret_target[head] = [target[s][:, [idx], :] for s in range(len(target))]
+        else:
+            ret_target[head_to_train] = target
+
+        return ret_target
+
+    def _plot_progress(self):
+        """
+        Should probably be improved
+        :return:
+        """
+        try:
+            font = {'weight': 'normal', 'size': 18}
+            matplotlib.rc('font', **font)
+            fig = plt.figure(figsize=(30, 24))
+            ax = fig.add_subplot(111)
+            ax2 = ax.twinx()
+
+            x_values = list(range(self.epoch + 1))
+
+            ax.plot(x_values, self.all_tr_losses, color='b', ls='-', label="loss_tr")
+
+            ax.plot(x_values, self.all_val_losses, color='r', ls='-', label="loss_val, train=False")
+
+            ave_all_val_eval_metrics = [0] * len(x_values)
+            for i in range(len(x_values)):
+                for head in self.all_val_eval_metrics:
+                    ave_all_val_eval_metrics[i] += self.all_val_eval_metrics[head][i]
+                ave_all_val_eval_metrics[i] /= len(self.all_val_eval_metrics)
+            if len(ave_all_val_eval_metrics) == len(x_values):
+                ax2.plot(x_values, ave_all_val_eval_metrics, color='g', ls='--', label="evaluation metric")
+
+            ax.set_xlabel("epoch")
+            ax.set_ylabel("loss")
+            ax2.set_ylabel("evaluation metric")
+            ax.legend()
+            ax2.legend(loc=9)
+
+            fig_output_name = "progress_" + self.task + "_" + self.head_to_train + "_" + \
+                              self.decoder_or_support + ".png"
+            fig.savefig(join(self.output_folder, fig_output_name))
+            plt.close()
+        except IOError:
+            print("failed to plot: ", sys.exc_info())
 
     def print_to_log_file(self, *args, also_print_to_console=True, add_timestamp=True):
         if self.local_rank == 0:
@@ -1121,23 +1344,22 @@ class clNetTrainer(object):
             return self.num_train_batches_per_epoch, self.num_val_batches_per_epoch
 
     def _get_eval_moving_average_before_pruning(self, window_size=default_pruning_percentile_moving_average_window_size):
-        for head in self.online_eval_foreground_dsc_percentile:
-            dsc_percentile_before_pruning = self.online_eval_foreground_dsc_percentile[head][:self.prune_start_epoch]
-            if len(dsc_percentile_before_pruning) > window_size:
+        for head in self.all_val_eval_metrics:
+            dsc_percentile_before_pruning = self.all_val_eval_metrics[head][:self.prune_start_epoch]
+            # We consider the moving average of the last 2 * window_size epochs. If the length is less than 2 * window_size, then we use the last epoch.
+            if len(dsc_percentile_before_pruning) >= 2 * window_size:
                 moving_ave = np.convolve(dsc_percentile_before_pruning, np.ones(window_size) / window_size, mode='valid')
             else:
                 if len(dsc_percentile_before_pruning) == 0:
                     moving_ave = [0]
-                elif len(dsc_percentile_before_pruning) == 1:
-                    moving_ave = [dsc_percentile_before_pruning[0]]
                 else:
-                    moving_ave = [np.nanmean(dsc_percentile_before_pruning)]
-            self.prune_eval_foreground_dsc_before_pruning_moving_average[head] = moving_ave[-1]
+                    moving_ave = [dsc_percentile_before_pruning[-1]]
+            self.prune_all_val_eval_metrics_moving_average[head] = moving_ave[-1]
 
     def _maybe_init_amp(self):
         if self.fp16 and self.amp_grad_scaler is None:
             if torch.cuda.is_available():
-                self.amp_grad_scaler = torch.amp.GradScaler(device="cuda")
+                self.amp_grad_scaler = torch.cuda.amp.GradScaler()
             else:
                 self.amp_grad_scaler = None
 
@@ -1173,7 +1395,7 @@ class clNetTrainer(object):
             plt.close()
 
         except IOError:
-            self.print_to_log_file("failed to plot: ", sys.exc_info())
+            self.print_to_log_file("Failed to plot: ", sys.exc_info())
 
     def _get_device_capability(self):
         compute_capability = np.inf
@@ -1200,6 +1422,34 @@ class clNetTrainer(object):
                     if 'exp_avg_sq' in opt_state:
                         opt_state['exp_avg_sq'].zero_()
 
+    def convert_to_sparse(self):
+        if self.epoch == self.prune_start_epoch + len(default_pruning_percentages_to_try):
+            # First, we need to restore the compiled network to its original mode
+            if torch.cuda.is_available():
+                if OptimizedModule is not None:
+                    if isinstance(self.network, OptimizedModule):
+                        self.network = self.network._orig_mod
+            # Then, we check if the network is wrapped using DDP.
+            if isinstance(self.network, DDP):
+                network = self.network.module
+            else:
+                network = self.network
+            device_id = next(network.parameters()).device
+            # Converting the pruned network to its corresponding sparse version
+            if self.head_to_train == "all":
+                for head in self.train_dict[self.decoder_or_support]:
+                    if self.prune_if_is_done[head] and self.flag_convert_to_sparse[head]:
+                        network.decoder_dict[head] = ModelSparse(network.decoder_dict[head]).to(device_id)
+                        network.ema_dict[head] = ModelSparse(network.ema_dict[head]).to(device_id)
+                        self.flag_convert_to_sparse[head] = False
+            else:
+                if self.prune_if_is_done[self.head_to_train] and self.flag_convert_to_sparse[self.head_to_train]:
+                    network.decoder_dict[self.head_to_train] = ModelSparse(network.decoder_dict[self.head_to_train]).to(device_id)
+                    network.decoder_dict[self.head_to_train] = ModelSparse(network.ema_dict[self.head_to_train]).to(device_id)
+                    self.flag_convert_to_sparse[self.head_to_train] = False
+            current_lr = self.optimizer.param_groups[0]["lr"]
+            self.initialize_optimizer_and_scheduler(current_lr)
+
     def compile_network(self, compile_loss=True):
         if torch.cuda.is_available():
             if OptimizedModule is not None:
@@ -1223,8 +1473,8 @@ class clNetTrainer(object):
                                 self.loss = torch.compile(self.loss, backend='eager')
                     self.print_to_log_file("Network compiled. CUDA Capability", self.compute_capability)
                 except RuntimeError:
-                    self.print_to_log_file("Cannot compile the network or loss. Please check PyTorch and CUDA versions.")
+                    self.print_to_log_file("The CL-Net is NOT compiled! Please check PyTorch and CUDA might not be compatible.")
             else:
-                self.print_to_log_file("The network is already compiled!")
+                self.print_to_log_file("The CL-Net is NOT compiled! Module '_dynamo' is not Loaded!")
         else:
-            self.print_to_log_file("Cannot compile the network or loss. Please check PyTorch and CUDA versions.")
+            self.print_to_log_file("The CL-Net is NOT compiled! Please check CUDA availability!")

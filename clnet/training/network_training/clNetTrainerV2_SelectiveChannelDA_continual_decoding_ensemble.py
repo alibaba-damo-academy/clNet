@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 03.01.2023
-
 import torch
 import shutil
 import numpy as np
@@ -9,8 +6,6 @@ from time import sleep
 from multiprocessing import Pool
 
 from clnet.inference.segmentation_export import save_segmentation_nifti_from_softmax
-from clnet.evaluation.evaluator import aggregate_scores
-from clnet.postprocessing.connected_components import determine_postprocessing
 from clnet.training.network_training.clNetTrainer import clNetTrainer
 from clnet.training.dataloading.dataset_loading import unpack_dataset
 from clnet.training.loss_functions.deep_supervision import MultipleOutputLossEnsemble

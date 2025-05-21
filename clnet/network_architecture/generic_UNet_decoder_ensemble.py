@@ -1,21 +1,19 @@
-#   Author @Dazhou Guo
-#   Data: 03.01.2023
-
-
 from torch import nn
 import torch
 import numpy as np
-import torch.nn.functional as functional
+
+from clnet.configuration import default_max_num_features, default_pool, default_conv
 from clnet.utilities.nd_softmax import softmax_helper
 from clnet.network_architecture.initialization import InitWeights_He
-from clnet.network_architecture.generic_UNet import ConvDropoutNormNonlin, StackedConvLayers, Upsample
+from clnet.network_architecture.generic_UNet import ConvDropoutNormNonlin, StackedConvLayers, Upsample, ResAdd
+from clnet.network_architecture.center_crop import center_crop_feature_pairs
 
 
 class Generic_UNet_Decoder_Ensemble(nn.Module):
     """
     The full upstream path (exclude bottleneck) of Generic_UNet, input skips from encoder.
     """
-    MAX_NUM_FILTERS_3D = 320
+    MAX_NUM_FILTERS_3D = default_max_num_features
     MAX_FILTERS_2D = 480
 
     def __init__(self, decoder_base_num_feature, encoder, num_level, num_classes, num_pool, num_conv_per_stage=2,
@@ -35,7 +33,6 @@ class Generic_UNet_Decoder_Ensemble(nn.Module):
         self.decoder_base_num_feature = np.clip(decoder_base_num_feature * np.array([1, 2, 4, 8, 16, 32]), decoder_base_num_feature, self.MAX_NUM_FILTERS_3D)
         self.convolutional_upsampling = convolutional_upsampling
         self.upscale_logits = upscale_logits
-        # self.num_features = np.clip(base_num_features * np.array([1, 2, 4, 8, 16, 32]), base_num_features, self.MAX_NUM_FILTERS_3D)
         if nonlin_kwargs is None:
             nonlin_kwargs = {'negative_slope': 1e-2, 'inplace': True}
         if dropout_op_kwargs is None:
@@ -50,6 +47,7 @@ class Generic_UNet_Decoder_Ensemble(nn.Module):
         self.dropout_op_kwargs = dropout_op_kwargs
         self.norm_op_kwargs = norm_op_kwargs
         self.weight_initializer = weight_initializer
+        self.num_pool = num_pool
         self.conv_op = conv_op
         self.norm_op = norm_op
         self.dropout_op = dropout_op
@@ -70,9 +68,9 @@ class Generic_UNet_Decoder_Ensemble(nn.Module):
             upsample_mode = 'trilinear'
             transpconv = nn.ConvTranspose3d
             if pool_op_kernel_sizes is None:
-                pool_op_kernel_sizes = [(2, 2, 2)] * num_pool
+                pool_op_kernel_sizes = default_pool
             if conv_kernel_sizes is None:
-                conv_kernel_sizes = [(3, 3, 3)] * (num_pool + 1)
+                conv_kernel_sizes = default_conv
         else:
             raise ValueError("unknown convolution dimensionality, conv op: %s" % str(conv_op))
 
@@ -93,16 +91,18 @@ class Generic_UNet_Decoder_Ensemble(nn.Module):
             self.max_num_features = max_num_features
 
         self.conv_blocks_localization = []
+        # self.skip_conv = []
+        # self.res_add = []
         self.tu = []
         self.seg_outputs = []
-
+        # conv_kwargs_1x1 = {'kernel_size': 1, 'stride': 1, 'padding': 0, 'bias': True}
         conv_blocks_context = encoder.conv_blocks_context
         nfeature_previous_block = conv_blocks_context[-1][-1].output_channels
         self.num_level = (len(conv_blocks_context) - 1) if num_level > (len(conv_blocks_context) - 1) else num_level
 
         # if we don't want to do dropout in the localization pathway then we set the dropout prob to zero here
+        old_dropout_p = self.dropout_op_kwargs['p']
         if not dropout_in_localization:
-            old_dropout_p = self.dropout_op_kwargs['p']
             self.dropout_op_kwargs['p'] = 0.0
         # get num_con_per_stage
         if isinstance(num_conv_per_stage, int):
@@ -111,10 +111,8 @@ class Generic_UNet_Decoder_Ensemble(nn.Module):
         for u in range(num_pool):
             # The skip channel number
             nfeatures_from_skip = conv_blocks_context[-(2 + u)].output_channels
-            # nfeatures_from_skip = self.num_features[-(2 + u)]
 
             # The channel number of the decoding head
-            # nfeatures_out_decoder = int(self.decoder_channel_ratio * nfeatures_from_skip)
             nfeatures_out_decoder = self.decoder_base_num_feature[-(2 + u)]
 
             nfeatures_in_decoder = nfeatures_out_decoder + nfeatures_from_skip
@@ -124,20 +122,29 @@ class Generic_UNet_Decoder_Ensemble(nn.Module):
             nfeatures_out_tu = nfeatures_out_decoder
             # Setup the self.tu using TransConv
             self.tu.append(transpconv(nfeatures_in_tu, nfeatures_out_tu, pool_op_kernel_sizes[-(u + 1)], pool_op_kernel_sizes[-(u + 1)], bias=False))
+            # self.skip_conv.append(
+            #     StackedConvLayers(nfeatures_from_skip, nfeatures_from_skip, 1, self.conv_op, conv_kwargs_1x1, None, None,
+            #                       self.dropout_op, self.dropout_op_kwargs, self.nonlin, self.nonlin_kwargs, basic_block=basic_block)
+            # )
+            # self.res_add.append(
+            #     ResAdd(nfeatures_in_decoder, nfeatures_out_decoder, self.conv_op, conv_kwargs_1x1, self.nonlin, self.nonlin_kwargs)
+            # )
             self.conv_kwargs['kernel_size'] = self.conv_kernel_sizes[- (u + 1)]
             self.conv_kwargs['padding'] = self.conv_pad_sizes[- (u + 1)]
 
             if num_conv_per_stage[-(u + 2)] > 1:
                 self.conv_blocks_localization.append(nn.Sequential(
-                    StackedConvLayers(nfeatures_in_decoder, nfeatures_out_decoder, num_conv_per_stage[-(u + 2)] - 1, self.conv_op, self.conv_kwargs, self.norm_op,
-                                      self.norm_op_kwargs, self.dropout_op, self.dropout_op_kwargs, self.nonlin, self.nonlin_kwargs, basic_block=basic_block),
+                    StackedConvLayers(nfeatures_in_decoder, nfeatures_out_decoder, num_conv_per_stage[-(u + 2)] - 1,
+                                      self.conv_op, self.conv_kwargs, self.norm_op, self.norm_op_kwargs, self.dropout_op,
+                                      self.dropout_op_kwargs, self.nonlin, self.nonlin_kwargs, basic_block=basic_block),
                     StackedConvLayers(nfeatures_out_decoder, nfeatures_out_decoder, 1, self.conv_op, self.conv_kwargs, self.norm_op, self.norm_op_kwargs,
-                                      self.dropout_op, self.dropout_op_kwargs, self.nonlin, self.nonlin_kwargs, basic_block=basic_block)
+                                      self.dropout_op, self.dropout_op_kwargs, None, None, basic_block=basic_block)
                 ))
             else:
                 self.conv_blocks_localization.append(nn.Sequential(
-                    StackedConvLayers(nfeatures_in_decoder, nfeatures_out_decoder, num_conv_per_stage[-(u + 2)] - 1, self.conv_op, self.conv_kwargs, self.norm_op,
-                                      self.norm_op_kwargs, self.dropout_op, self.dropout_op_kwargs, self.nonlin, self.nonlin_kwargs, basic_block=basic_block),
+                    StackedConvLayers(nfeatures_in_decoder, nfeatures_out_decoder, num_conv_per_stage[-(u + 2)] - 1, self.conv_op,
+                                      self.conv_kwargs, self.norm_op, self.norm_op_kwargs, self.dropout_op, self.dropout_op_kwargs,
+                                      self.nonlin, self.nonlin_kwargs, basic_block=basic_block),
                 ))
 
             nfeature_previous_block = nfeatures_out_decoder
@@ -161,43 +168,29 @@ class Generic_UNet_Decoder_Ensemble(nn.Module):
         self.conv_blocks_localization = nn.ModuleList(self.conv_blocks_localization)
         self.tu = nn.ModuleList(self.tu)
         self.seg_outputs = nn.ModuleList(self.seg_outputs)
+        # self.skip_conv = nn.ModuleList(self.skip_conv)
+        # self.res_add = nn.ModuleList(self.res_add)
 
         if self.upscale_logits:
-            # lambda x:x is not a Module so we need to distinguish here
             self.upscale_logits_ops = nn.ModuleList(self.upscale_logits_ops)
+        if self.weight_initializer is not None:
+            self.apply(self.weight_initializer)
 
-        # if self.weight_initializer is not None:
-        #     self.apply(self.weight_initializer)
-        #     # self.apply(print_module_training_status)
-
-    def forward(self, skips, seg_feats):
+    def forward(self, skips, x):
         """
         expect skips only contains corresponding skip features for decoder layers in this module
         """
         seg_outputs = []
-        # ! use for special case when seg_feats=None and skips has one more feat (latent) than decoder levels
-        skips_offset = 0
-        if seg_feats is None or len(seg_feats) == 0:
-            x = skips[-1]
-            skips_offset = 1  # ! last skip feat is used, set offset to 1
-        else:
-            x = seg_feats[-1]
-
-        for u in range(len(self.tu)):
+        for u in range(self.num_pool):
             x = self.tu[u](x)
-            f_skip = skips[-(u + 1 + skips_offset)]
-            x_dim = x.size()[2:]
-            f_skip_dim = f_skip.size()[2:]
-            if x_dim != f_skip_dim:
-                x = functional.interpolate(x, size=f_skip_dim, mode='trilinear', align_corners=True)
-                if self.dim_mismatch:
-                    print("######################################################################################")
-                    print("##      DIMENSION 'skip' vs. 'DECODING feature' MISMATCH -- Please double check     ##")
-                    print("## We interpolate the 'decoding feature' feature to match 'skip' feature dimension! ##")
-                    print("######################################################################################")
-                    self.dim_mismatch = False
-            x = torch.cat((x, f_skip), dim=1)
-            x = self.conv_blocks_localization[u](x)
+            # f_skip = self.skip_conv[u](skips[-(u + 1)])
+            f_skip = skips[-(u + 1)]
+            # center crop the possible dimension mismatch caused by TransposeConv/UpSample and Conv.
+            x, f_skip = center_crop_feature_pairs(x, f_skip)
+
+            x_cat = torch.cat((x, f_skip), 1)
+            x = self.conv_blocks_localization[u](x_cat)
+            # x = self.res_add[u](x, x_cat)
             seg_outputs.append(self.final_nonlin(self.seg_outputs[u](x)))
 
         if self.deep_supervision and self.do_ds:

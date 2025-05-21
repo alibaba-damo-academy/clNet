@@ -1,0 +1,479 @@
+{
+    "GeneralEncoder": {
+        "task": "Task001_SuperGeneralEncoder",
+        "type": "GeneralEncoder",
+        "train_order": 0,
+        "continue_training": false,
+        "fold": "all",
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "load_only_encoder": true,
+        "decoders": {},
+        "supporting": {},
+        "weights_for_decoders": {},
+        "bpr_range_for_decoders": {},
+        "model_training_setup": {
+            "decoders": null,
+            "supporting": null,
+            "patch_size": {
+                "all": null
+            },
+            "batch_size": {
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "bak": {
+            "decoders": {},
+            "supporting": null,
+            "weights_for_decoders": {
+                "decoders": null,
+                "supporting": null
+            },
+            "model_training_setup": {
+                "decoders": null,
+                "supporting": null,
+                "patch_size": {
+                    "all": null
+                },
+                "batch_size": {
+                    "all": 2
+                }
+            }
+        },
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task001_SuperGeneralEncoder",
+        "decoder_architecture_setup": {},
+        "decoder_update": true,
+        "decoders_to_train": [],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "encoder_architecture_setup": {
+            "base_num_feature": 32,
+            "num_conv_per_stage": null,
+            "conv_kernel": null,
+            "pool_kernel": null,
+            "enable_ema": false
+        },
+        "finetune_encoder": false,
+        "full_network": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task001_SuperGeneralEncoder/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task001_SuperGeneralEncoder/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5,
+        "bpr_cls_details": {
+            "Colon": {
+                "name": "Colon",
+                "median": 21.104089093549565,
+                "mean": 31.453941848974697,
+                "sd": 26.271953563673087,
+                "mn": -91.81556586594222,
+                "mx": 116.44875553625985,
+                "percentile_99_5": 53.49215488753363,
+                "percentile_00_5": 22.355463141398662
+            },
+            "Rectum": {
+                "name": "Rectum",
+                "median": 13.88208006952516,
+                "mean": 27.112283206687746,
+                "sd": 28.455636220762596,
+                "mn": -78.46134039912141,
+                "mx": 99.87031422612621,
+                "percentile_99_5": 31.90673709562504,
+                "percentile_00_5": 5.116620348064312
+            },
+            "Spleen": {
+                "name": "Spleen",
+                "median": 10.476423493745681,
+                "mean": 11.489115465155002,
+                "sd": 7.713385479193357,
+                "mn": -36.08351944399703,
+                "mx": 110.11088696629392,
+                "percentile_99_5": 50.75526446336535,
+                "percentile_00_5": 39.38827431312042
+            },
+            "Kidney_R": {
+                "name": "Kidney_R",
+                "median": 11.94742585718688,
+                "mean": 11.665261278336116,
+                "sd": 3.257573721609751,
+                "mn": -27.282868676159907,
+                "mx": 67.7050070756058,
+                "percentile_99_5": 43.07557110879137,
+                "percentile_00_5": 31.53003247201763
+            },
+            "Kidney_L": {
+                "name": "Kidney_L",
+                "median": 12.116091597513599,
+                "mean": 11.881947162646773,
+                "sd": 3.2814377785193347,
+                "mn": -27.02402600651764,
+                "mx": 99.45016435746483,
+                "percentile_99_5": 43.882072629549974,
+                "percentile_00_5": 32.12253407083174
+            },
+            "GallBladder": {
+                "name": "GallBladder",
+                "median": 4.122372529716095,
+                "mean": 4.880567778511081,
+                "sd": 7.351796925426413,
+                "mn": -46.70148960440769,
+                "mx": 108.30228151691227,
+                "percentile_99_5": 42.92234173722972,
+                "percentile_00_5": 38.08461036541984
+            },
+            "Liver": {
+                "name": "Liver",
+                "median": 19.742531858512393,
+                "mean": 20.246560436040976,
+                "sd": 6.976297992685615,
+                "mn": -41.26037283684243,
+                "mx": 112.98991698004916,
+                "percentile_99_5": 53.52100659272625,
+                "percentile_00_5": 33.55586602088211
+            },
+            "Stomach": {
+                "name": "Stomach",
+                "median": 12.269718609002993,
+                "mean": 12.802336626098066,
+                "sd": 5.205561375860802,
+                "mn": -36.3423621136393,
+                "mx": 96.41096171185787,
+                "percentile_99_5": 50.3044091204582,
+                "percentile_00_5": 37.6506673693054
+            },
+            "Pancreas": {
+                "name": "Pancreas",
+                "median": 9.421987625858193,
+                "mean": 9.510252271618802,
+                "sd": 4.050187088295939,
+                "mn": -53.24497216950909,
+                "mx": 66.6326677045532,
+                "percentile_99_5": 44.43739047409226,
+                "percentile_00_5": 35.02119440083236
+            },
+            "Glnd_Adrenal_R": {
+                "name": "Glnd_Adrenal_R",
+                "median": 3.895890984409302,
+                "mean": 3.8798440498607705,
+                "sd": 0.9054670269518645,
+                "mn": -30.647823381509372,
+                "mx": 64.98291482601073,
+                "percentile_99_5": 45.713994352645805,
+                "percentile_00_5": 41.87301745587722
+            },
+            "Glnd_Adrenal_L": {
+                "name": "Glnd_Adrenal_L",
+                "median": 4.334091311642688,
+                "mean": 4.381497662502895,
+                "sd": 1.5966379638357573,
+                "mn": -28.059396685086707,
+                "mx": 68.11158726914543,
+                "percentile_99_5": 45.08907040327704,
+                "percentile_00_5": 40.75132713110882
+            },
+            "SmallBowel": {
+                "name": "SmallBowel",
+                "median": 15.88489932176456,
+                "mean": 18.958159185118244,
+                "sd": 10.911639606904322,
+                "mn": -50.69438430974651,
+                "mx": 112.98991698004916,
+                "percentile_99_5": 42.057068936938585,
+                "percentile_00_5": 23.322723888507372
+            },
+            "Duodenum": {
+                "name": "Duodenum",
+                "median": 10.289589135141465,
+                "mean": 10.342549723010404,
+                "sd": 3.954050082353308,
+                "mn": -29.612452702940306,
+                "mx": 101.6684908576475,
+                "percentile_99_5": 42.07204309108761,
+                "percentile_00_5": 31.836174738394035
+            },
+            "UrinaryBladder": {
+                "name": "UrinaryBladder",
+                "median": 5.532739599588587,
+                "mean": 7.493383382706249,
+                "sd": 11.32033265969623,
+                "mn": -50.72624730393223,
+                "mx": 108.14012523529057,
+                "percentile_99_5": 17.24534905551449,
+                "percentile_00_5": 9.851694683007102
+            },
+            "Prostate": {
+                "name": "Prostate",
+                "median": 3.694009202863935,
+                "mean": 3.669632172825863,
+                "sd": 1.9178978808265867,
+                "mn": -60.60071474283191,
+                "mx": 75.56744564380269,
+                "percentile_99_5": 10.328225886457055,
+                "percentile_00_5": 6.695512871051766
+            },
+            "Musc_GluteusMax_L": {
+                "name": "Musc_GluteusMax_L",
+                "median": 23.41405007360221,
+                "mean": 20.61907795977336,
+                "sd": 9.106944361866072,
+                "mn": -16.20495758801361,
+                "mx": 79.02931979635015,
+                "percentile_99_5": 24.480034173986684,
+                "percentile_00_5": 4.013202218954583
+            },
+            "Musc_GluteusMax_R": {
+                "name": "Musc_GluteusMax_R",
+                "median": 23.54857486027928,
+                "mean": 22.800555459957263,
+                "sd": 18.60632793878027,
+                "mn": -37.763896265562856,
+                "mx": 110.7899260463543,
+                "percentile_99_5": 26.875484520785648,
+                "percentile_00_5": 4.8247379095416925
+            },
+            "Musc_GluteusMed_L": {
+                "name": "Musc_GluteusMed_L",
+                "median": 7.7244922457900245,
+                "mean": 8.559486742816954,
+                "sd": 7.705614781815348,
+                "mn": -10.45809514941258,
+                "mx": 74.67978560468795,
+                "percentile_99_5": 27.240638794193462,
+                "percentile_00_5": 18.767486296627872
+            },
+            "Musc_GluteusMed_R": {
+                "name": "Musc_GluteusMed_R",
+                "median": 4.495300945732033,
+                "mean": 9.234783571141874,
+                "sd": 8.802284633664243,
+                "mn": -39.359607329023234,
+                "mx": 74.94608361642237,
+                "percentile_99_5": 27.444173592822448,
+                "percentile_00_5": 18.327966942078234
+            },
+            "Musc_GluteusMin_L": {
+                "name": "Musc_GluteusMin_L",
+                "median": 9.983644701055775,
+                "mean": 9.695679601383295,
+                "sd": 1.9743122667764144,
+                "mn": -3.9870284083559024,
+                "mx": 74.502253596865,
+                "percentile_99_5": 21.273373475706197,
+                "percentile_00_5": 11.67605570631745
+            },
+            "Musc_GluteusMin_R": {
+                "name": "Musc_GluteusMin_R",
+                "median": 11.198126459354377,
+                "mean": 11.186341387650488,
+                "sd": 5.2029549710337,
+                "mn": -5.540084426209507,
+                "mx": 101.29364478601515,
+                "percentile_99_5": 22.290597020040686,
+                "percentile_00_5": 11.265669252822773
+            },
+            "Musc_Iliopsoas_L": {
+                "name": "Musc_Iliopsoas_L",
+                "median": 15.326810239560238,
+                "mean": 21.128749868605983,
+                "sd": 12.333615543440157,
+                "mn": -22.62370062259911,
+                "mx": 98.6581291497399,
+                "percentile_99_5": 41.401017297737994,
+                "percentile_00_5": 20.443300976083684
+            },
+            "Musc_Iliopsoas_R": {
+                "name": "Musc_Iliopsoas_R",
+                "median": 15.781404151763756,
+                "mean": 21.548328978888655,
+                "sd": 12.273280228133672,
+                "mn": -23.141385961883643,
+                "mx": 80.73047121779916,
+                "percentile_99_5": 41.800152402287225,
+                "percentile_00_5": 20.428409949366696
+            },
+            "A_Iliac_L": {
+                "name": "A_Iliac_L",
+                "median": 2.7554209975066897,
+                "mean": 9.145240905092693,
+                "sd": 9.700559523048902,
+                "mn": -11.493465827981646,
+                "mx": 75.38991363597974,
+                "percentile_99_5": 29.049580704073236,
+                "percentile_00_5": 20.01743309071362
+            },
+            "A_Iliac_R": {
+                "name": "A_Iliac_R",
+                "median": 2.7554209975066897,
+                "mean": 9.414447739254765,
+                "sd": 9.920873104371971,
+                "mn": -11.23462315833938,
+                "mx": 75.30114763206826,
+                "percentile_99_5": 28.985862560975978,
+                "percentile_00_5": 19.66139508731327
+            },
+            "V_Iliac_L": {
+                "name": "V_Iliac_L",
+                "median": 1.6950946670306948,
+                "mean": 8.76627366477907,
+                "sd": 9.515932226906662,
+                "mn": -9.940409810128047,
+                "mx": 75.38991363597974,
+                "percentile_99_5": 27.803478454647195,
+                "percentile_00_5": 19.12032413976532
+            },
+            "V_Iliac_R": {
+                "name": "V_Iliac_R",
+                "median": 1.5295679261031587,
+                "mean": 8.848935240596447,
+                "sd": 9.696310248401813,
+                "mn": -10.199252479770314,
+                "mx": 75.56744564380269,
+                "percentile_99_5": 27.75775981129073,
+                "percentile_00_5": 18.992902828931612
+            }
+        }
+    },
+    "Abdomen_decoder": {
+        "task": "Task905_Abdomen_decoder",
+        "type": "DecodingEnsemble",
+        "train_order": 2,
+        "continue_training": false,
+        "fold": "all",
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "decoders": {
+            "MERGED_ABDOMEN": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27
+            ]
+        },
+        "supporting": {},
+        "weights_for_decoders": {
+            "decoders": {
+                "MERGED_ABDOMEN": 1.0
+            },
+            "supporting": null
+        },
+        "bpr_range_for_decoders": {
+            "MERGED_ABDOMEN": {
+                "percentile_00_5": 4.013202218954583,
+                "percentile_99_5": 53.52100659272625,
+                "min": -91.81556586594222,
+                "max": 116.44875553625985,
+                "mean": 31.453941848974697,
+                "std": 28.455636220762596
+            }
+        },
+        "model_training_setup": {
+            "decoders": {
+                "all": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ],
+                "MERGED_ABDOMEN": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "supporting": null,
+            "patch_size": {
+                "MERGED_ABDOMEN": [
+                    112,
+                    96,
+                    128
+                ],
+                "all": [
+                    112,
+                    96,
+                    128
+                ]
+            },
+            "batch_size": {
+                "MERGED_ABDOMEN": 2,
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task905_Abdomen_decoder",
+        "decoder_architecture_setup": {
+            "MERGED_ABDOMEN": {
+                "base_num_feature": 32,
+                "num_conv_per_stage": [
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2
+                ],
+                "conv_kernel": null,
+                "enable_ema": true,
+                "conv_block": "conv_block"
+            }
+        },
+        "decoder_update": true,
+        "decoders_to_train": [
+            "all"
+        ],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "finetune_encoder": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task905_Abdomen_decoder/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task905_Abdomen_decoder/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5
+    }
+}

@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 07.20.2023
-
 """
 Abdomen_TongDe: 56 + 5
 Abdomen_CT1K: 50 + 1062 + 773(pseudo tumors)
@@ -907,6 +904,78 @@ Task667_abdomen_bone = {
     61: "rib_right_12",
     62: "sternum",
     63: "costal_cartilages"
+}
+
+Task331_tooth = {
+    0: "Background",
+    1: "tooth_lower_right_1",
+    2: "tooth_upper_right_32",
+    3: "tooth_lower_right_2",
+    4: "tooth_upper_right_31",
+    5: "tooth_lower_right_3",
+    6: "tooth_upper_right_30",
+    7: "tooth_lower_right_4",
+    8: "tooth_upper_right_29",
+    9: "tooth_lower_right_5",
+    10: "tooth_upper_right_28",
+    11: "tooth_lower_right_6",
+    12: "tooth_upper_right_27",
+    13: "tooth_lower_right_7",
+    14: "tooth_upper_right_26",
+    15: "tooth_lower_right_8",
+    16: "tooth_upper_right_25",
+    17: "tooth_lower_left_9",
+    18: "tooth_upper_left_24",
+    19: "tooth_lower_left_10",
+    20: "tooth_upper_left_23",
+    21: "tooth_lower_right_11",
+    22: "tooth_upper_left_22",
+    23: "tooth_lower_left_12",
+    24: "tooth_upper_left_21",
+    25: "tooth_lower_left_13",
+    26: "tooth_upper_left_20",
+    27: "tooth_lower_left_14",
+    28: "tooth_upper_left_19",
+    29: "tooth_lower_left_15",
+    30: "tooth_upper_left_18",
+    31: "tooth_lower_left_16",
+    32: "tooth_upper_left_17"
+}
+
+Task1017_Abdomen_ZJU_Vessel_32 = {
+    0: "Background",
+    1: "A_Aorta",
+    2: "V_VenaCava_I",
+    3: "V_Portal",
+    4: "A_Celiac",
+    5: "A_Gastric_L",
+    6: "A_CommonHepatic",
+    7: "A_Splenic",
+    8: "A_Mesenteric_S",
+    9: "A_Mesenteric_I",
+    10: "V_Renal_L",
+    11: "V_Renal_R",
+    12: "A_Renal_L",
+    13: "A_Renal_R",
+    14: "A_CommonIliac_L",
+    15: "A_CommonIliac_R",
+    16: "V_CommonIliac_L",
+    17: "V_CommonIliac_R",
+    18: "A_InternalIliac_L",
+    19: "A_InternalIliac_R",
+    20: "V_InternalIliac_L",
+    21: "V_InternalIliac_R",
+    22: "A_ExternalIliac_L",
+    23: "A_ExternalIliac_R",
+    24: "V_ExternalIliac_L",
+    25: "V_ExternalIliac_R",
+    26: "A_Obturator_L",
+    27: "A_Obturator_R",
+    28: "V_Splenic",
+    29: "V_Inguinal_L",
+    30: "V_Inguinal_R",
+    31: "A_Inguinal_L",
+    32: "A_Inguinal_R",
 }
 
 

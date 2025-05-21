@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 07.12.2023
-
 import json
 import os
 import pickle

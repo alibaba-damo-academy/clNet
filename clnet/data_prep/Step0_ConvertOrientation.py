@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 07.20.2023
-
 import SimpleITK as sitk
 import numpy as np
 import os
@@ -85,8 +82,8 @@ class ReOrient(object):
 
 
 def reori_img():
-    pth_root_in = "/nas/dazhou.guo/Data_Partial/DataRaw"
-    pth_root_out = "/nas/dazhou.guo/Data_Partial/clNet_raw_data/"
+    pth_root_in = "PATH/TO/DataRaw"
+    pth_root_out = "PATH/TO/clNet_raw_data/"
     tasks = [
         # "Task003_Liver/imagesTr",
         # "Task003_Liver/imagesTs",
@@ -194,11 +191,16 @@ def reori_img():
 
 
     ]
-    for task in tasks:
-        pth_in = os.path.join(pth_root_in, task)
-        pth_out = os.path.join(pth_root_out, task)
-        reori = ReOrient(pth_in, pth_out, "LPS", "", multi_thread=52)
-        reori.reori_uniform_forward()
+    # for task in tasks:
+    #     pth_in = os.path.join(pth_root_in, task)
+    #     pth_out = os.path.join(pth_root_out, task)
+    #     reori = ReOrient(pth_in, pth_out, "LPS", "", multi_thread=52)
+    #     reori.reori_uniform_forward()
+
+    pth_in = "PATH/TO/CheckData/"
+    pth_out = "PATH/TO/CheckData/ForWenPei_back_to_original_orientation"
+    reori = ReOrient(pth_in, pth_out, "LPI", "", multi_thread=52)
+    reori.reori_uniform_forward()
 
 
 if __name__ == "__main__":

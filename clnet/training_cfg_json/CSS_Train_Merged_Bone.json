@@ -1,0 +1,34 @@
+{
+  "clnet_general_encoder": "GeneralEncoder",
+
+  "GeneralEncoder": {
+    "task": "Task001_SuperGeneralEncoder",
+    "fold": "all",
+    "load_only_encoder": true
+  },
+
+  "Bone_decoder": {
+    "train_order": 1,
+    "task": "Task906_Bone_decoder",
+    "continue_training": false,
+    "fold": "all",
+    "optimizer": "adam",
+    "decoders": {
+      "MERGED_BONE": "1-63"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000,
+          "lr": 3e-4
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  }
+}

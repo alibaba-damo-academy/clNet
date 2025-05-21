@@ -1,0 +1,218 @@
+{
+  "clnet_general_encoder": "GeneralEncoder",
+
+  "GeneralEncoder": {
+    "task": "Task001_SuperGeneralEncoder",
+    "fold": "all",
+    "load_only_encoder": true
+  },
+
+  "HN1_decoder": {
+    "train_order": 1,
+    "task": "Task900_HN_decoder1",
+    "continue_training": false,
+    "fold": "all",
+    "decoders": {
+      "MERGED_HN1": "1-26"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "HN2_decoder": {
+    "train_order": 2,
+    "task": "Task901_HN_decoder2",
+    "continue_training": false,
+    "fold": "all",
+    "decoders": {
+      "MERGED_HN2": "1-13"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "HN3_decoder": {
+    "train_order": 3,
+    "task": "Task902_HN_decoder3",
+    "continue_training": false,
+    "fold": "all",
+    "decoders": {
+      "MERGED_HN3": "1-10"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+
+  "Chest1_decoder": {
+    "train_order": 4,
+    "task": "Task903_Chest_decoder1",
+    "continue_training": false,
+    "fold": "all",
+    "decoders": {
+      "MERGED_CHEST1": "1-35"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "Chest2_decoder": {
+    "train_order": 5,
+    "task": "Task904_Chest_decoder2",
+    "continue_training": false,
+    "fold": 0,
+    "decoders": {
+      "MERGED_CHEST2": "1-15"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "Abdomen_decoder": {
+    "train_order": 6,
+    "task": "Task905_Abdomen_decoder",
+    "continue_training": false,
+    "fold": "all",
+    "decoders": {
+      "MERGED_ABDOMEN": "1-27"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "Bone_decoder": {
+    "train_order": 7,
+    "task": "Task906_Bone_decoder",
+    "continue_training": false,
+    "fold": "all",
+    "optimizer": "adam",
+    "decoders": {
+      "MERGED_BONE": "1-63"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "HN_LNS_015": {
+    "train_order": 8,
+    "task": "Task1007_HeadNeck_LNS_18",
+    "continue_training": false,
+    "fold": 0,
+    "decoders": {
+      "HN_LNS": "1-18"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "Chest_LNS_015": {
+    "train_order": 9,
+    "task": "Task1008_Chest_LNS_15",
+    "continue_training": false,
+    "fold": 0,
+    "decoders": {
+      "Chest_LNS": "1-15"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  }
+}

@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 07.20.2023
-
 import shutil
 from multiprocessing import Pool
 import os
@@ -77,7 +74,7 @@ class GenTrainDat(object):
 
 
 def main():
-    pth_root = "/nas/dazhou.guo/Data_Partial/DataRaw/processed/"
+    pth_root = "PATH/TO/DataRaw/processed/"
 
     Task_name = "WORD"
     img_folder_name = "imagesTs"
@@ -89,7 +86,7 @@ def main():
     postfix_img = ""
     prefix_lab = ""
     postfix_lab = ""
-    pth_out = "/nas/dazhou.guo/Data_Partial/DataRaw/training_dat/" + Task_name
+    pth_out = "PATH/TO/DataRaw/training_dat/" + Task_name
 
     gtd = GenTrainDat(pth_img, pth_lab, prefix_img, prefix_lab, postfix_img, postfix_lab, pth_out,
                       train_or_not=False, multi_thread=98)

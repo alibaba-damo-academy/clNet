@@ -1,7 +1,3 @@
-#   Author @Dazhou Guo + @Puyang Wang
-#   Data: 06.16.2023
-
-
 import argparse
 from clnet.configuration import *
 from clnet.inference.predict_simple_deliver import clnet_inference

@@ -1,0 +1,652 @@
+{
+    "GeneralEncoder": {
+        "task": "Task001_SuperGeneralEncoder",
+        "type": "GeneralEncoder",
+        "train_order": 0,
+        "continue_training": false,
+        "fold": "all",
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "load_only_encoder": true,
+        "decoders": {},
+        "supporting": {},
+        "weights_for_decoders": {},
+        "bpr_range_for_decoders": {},
+        "model_training_setup": {
+            "decoders": null,
+            "supporting": null,
+            "patch_size": {
+                "all": null
+            },
+            "batch_size": {
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "bak": {
+            "decoders": {},
+            "supporting": null,
+            "weights_for_decoders": {
+                "decoders": null,
+                "supporting": null
+            },
+            "model_training_setup": {
+                "decoders": null,
+                "supporting": null,
+                "patch_size": {
+                    "all": null
+                },
+                "batch_size": {
+                    "all": 2
+                }
+            }
+        },
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task001_SuperGeneralEncoder",
+        "decoder_architecture_setup": {},
+        "decoder_update": true,
+        "decoders_to_train": [],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "encoder_architecture_setup": {
+            "base_num_feature": 32,
+            "num_conv_per_stage": null,
+            "conv_kernel": null,
+            "pool_kernel": null,
+            "enable_ema": false
+        },
+        "finetune_encoder": false,
+        "full_network": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task001_SuperGeneralEncoder/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task001_SuperGeneralEncoder/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5,
+        "bpr_cls_details": {
+            "HN_LNS_1La": {
+                "name": "HN_LNS_1La",
+                "median": 0.9730016559206263,
+                "mean": 1.2368751271897143,
+                "sd": 0.8731319888075836,
+                "mn": 81.95491894711172,
+                "mx": 88.25003915254851,
+                "percentile_99_5": 85.2891948399843,
+                "percentile_00_5": 84.06465646636752
+            },
+            "HN_LNS_1Lb": {
+                "name": "HN_LNS_1Lb",
+                "median": 4.526773447846452,
+                "mean": 5.246390037271381,
+                "sd": 3.8103589884682685,
+                "mn": 59.01771460481596,
+                "mx": 89.64131347244937,
+                "percentile_99_5": 87.65217364694674,
+                "percentile_00_5": 82.46276447828599
+            },
+            "HN_LNS_1Ra": {
+                "name": "HN_LNS_1Ra",
+                "median": 0.9959914881702758,
+                "mean": 1.2716612190521108,
+                "sd": 0.9087092301719907,
+                "mn": 81.95491894711172,
+                "mx": 88.25003915254851,
+                "percentile_99_5": 85.29886201038461,
+                "percentile_00_5": 84.0398789508654
+            },
+            "HN_LNS_1Rb": {
+                "name": "HN_LNS_1Rb",
+                "median": 4.52848729720688,
+                "mean": 4.71013384214539,
+                "sd": 2.214970550025631,
+                "mn": 63.13527573704687,
+                "mx": 89.5239184927601,
+                "percentile_99_5": 87.59515262020345,
+                "percentile_00_5": 82.94242872567978
+            },
+            "HN_LNS_2La": {
+                "name": "HN_LNS_2La",
+                "median": 5.74199174178456,
+                "mean": 5.9584248110947415,
+                "sd": 1.7448157708020493,
+                "mn": 80.27324702275794,
+                "mx": 93.76036443282132,
+                "percentile_99_5": 89.26401571969546,
+                "percentile_00_5": 83.37398516835637
+            },
+            "HN_LNS_2Lb": {
+                "name": "HN_LNS_2Lb",
+                "median": 5.816772263381452,
+                "mean": 6.641288382742573,
+                "sd": 3.816087852994778,
+                "mn": 56.52487704273762,
+                "mx": 92.33218191805545,
+                "percentile_99_5": 89.44899115045388,
+                "percentile_00_5": 82.87952201106064
+            },
+            "HN_LNS_2Ra": {
+                "name": "HN_LNS_2Ra",
+                "median": 5.744523664066591,
+                "mean": 6.640487611271084,
+                "sd": 4.016128249337595,
+                "mn": 58.92699079338806,
+                "mx": 93.76036443282132,
+                "percentile_99_5": 89.38018620153245,
+                "percentile_00_5": 82.82742398641524
+            },
+            "HN_LNS_2Rb": {
+                "name": "HN_LNS_2Rb",
+                "median": 5.833956066495858,
+                "mean": 6.637842824138557,
+                "sd": 3.813905384606954,
+                "mn": 60.49058137432031,
+                "mx": 92.46504035985375,
+                "percentile_99_5": 89.49133368470454,
+                "percentile_00_5": 82.94477599468621
+            },
+            "HN_LNS_3L": {
+                "name": "HN_LNS_3L",
+                "median": 4.5430810451443335,
+                "mean": 5.1008970136951115,
+                "sd": 2.7589637431470955,
+                "mn": 62.08623378027764,
+                "mx": 91.00814088413566,
+                "percentile_99_5": 83.76106406004371,
+                "percentile_00_5": 78.74557940628465
+            },
+            "HN_LNS_3R": {
+                "name": "HN_LNS_3R",
+                "median": 4.287267019256284,
+                "mean": 4.4282437911306705,
+                "sd": 1.2394266075465012,
+                "mn": 75.83233898297394,
+                "mx": 86.87110658409642,
+                "percentile_99_5": 83.26039755590051,
+                "percentile_00_5": 78.88229487309319
+            },
+            "HN_LNS_4L": {
+                "name": "HN_LNS_4L",
+                "median": 5.076276476492708,
+                "mean": 5.280886793734892,
+                "sd": 2.436351014522989,
+                "mn": 64.33108393801618,
+                "mx": 88.8239755743248,
+                "percentile_99_5": 78.93416004564995,
+                "percentile_00_5": 73.72471766341938
+            },
+            "HN_LNS_4R": {
+                "name": "HN_LNS_4R",
+                "median": 4.8003703524727115,
+                "mean": 4.944633094266585,
+                "sd": 1.590686986445626,
+                "mn": 70.37227115450915,
+                "mx": 83.88878488501489,
+                "percentile_99_5": 78.73593022261345,
+                "percentile_00_5": 73.84637537295043
+            },
+            "HN_LNS_5La": {
+                "name": "HN_LNS_5La",
+                "median": 6.960010279823663,
+                "mean": 7.776266106126381,
+                "sd": 4.4535927529384995,
+                "mn": 54.370635912585264,
+                "mx": 88.97584247736724,
+                "percentile_99_5": 85.68536751574159,
+                "percentile_00_5": 78.00470399488579
+            },
+            "HN_LNS_5Lb": {
+                "name": "HN_LNS_5Lb",
+                "median": 5.288919323312086,
+                "mean": 5.102287490155938,
+                "sd": 2.569264347111201,
+                "mn": 54.42623834323248,
+                "mx": 83.74670060823006,
+                "percentile_99_5": 79.02988050608245,
+                "percentile_00_5": 73.98181446514748
+            },
+            "HN_LNS_5Ra": {
+                "name": "HN_LNS_5Ra",
+                "median": 6.931517021647323,
+                "mean": 7.736555646846179,
+                "sd": 4.273891994968735,
+                "mn": 54.370635912585264,
+                "mx": 88.65530495103198,
+                "percentile_99_5": 85.76518987235657,
+                "percentile_00_5": 78.12089057236726
+            },
+            "HN_LNS_5Rb": {
+                "name": "HN_LNS_5Rb",
+                "median": 5.134738395661188,
+                "mean": 5.254716185389734,
+                "sd": 2.6337315967471664,
+                "mn": 54.370635912585264,
+                "mx": 84.27661369025469,
+                "percentile_99_5": 78.96858901864587,
+                "percentile_00_5": 73.77098516112106
+            },
+            "HN_LNS_6L": {
+                "name": "HN_LNS_6L",
+                "median": 8.020603268474716,
+                "mean": 8.188386859164465,
+                "sd": 1.9892246054681542,
+                "mn": 59.54989956205133,
+                "mx": 83.64212175900536,
+                "percentile_99_5": 80.25469496525095,
+                "percentile_00_5": 72.16955296003304
+            },
+            "HN_LNS_6R": {
+                "name": "HN_LNS_6R",
+                "median": 8.091315684546075,
+                "mean": 8.041559718570058,
+                "sd": 1.7297486468138075,
+                "mn": 69.61151592981086,
+                "mx": 83.14103149312643,
+                "percentile_99_5": 80.26151480379559,
+                "percentile_00_5": 72.3151524483274
+            },
+            "Chest_LNS1_L": {
+                "name": "Chest_LNS1_L",
+                "median": 4.503200425907252,
+                "mean": 4.53431873691117,
+                "sd": 1.1724759707833905,
+                "mn": 70.54598202719384,
+                "mx": 80.11826778312155,
+                "percentile_99_5": 77.70698167669616,
+                "percentile_00_5": 73.21545230298572
+            },
+            "Chest_LNS1_R": {
+                "name": "Chest_LNS1_R",
+                "median": 4.472188469166525,
+                "mean": 4.484812043091659,
+                "sd": 1.2150367757396483,
+                "mn": 70.54598202719384,
+                "mx": 80.11826778312155,
+                "percentile_99_5": 77.6577496070879,
+                "percentile_00_5": 73.21524083638518
+            },
+            "Chest_LNS2_L": {
+                "name": "Chest_LNS2_L",
+                "median": 2.435891193242327,
+                "mean": 2.6414488625440633,
+                "sd": 1.0437084212105117,
+                "mn": 68.02108652382233,
+                "mx": 74.21938065514169,
+                "percentile_99_5": 72.62978539918608,
+                "percentile_00_5": 70.01483466894135
+            },
+            "Chest_LNS2_R": {
+                "name": "Chest_LNS2_R",
+                "median": 3.369277309062639,
+                "mean": 3.3418283802492303,
+                "sd": 0.986927956050459,
+                "mn": 65.7583547381509,
+                "mx": 74.21938065514169,
+                "percentile_99_5": 72.62673341590545,
+                "percentile_00_5": 69.31789273534547
+            },
+            "Chest_LNS3_A": {
+                "name": "Chest_LNS3_A",
+                "median": 8.273414056194255,
+                "mean": 8.286253292763854,
+                "sd": 0.8849036250527502,
+                "mn": 61.97916767149394,
+                "mx": 74.21938065514169,
+                "percentile_99_5": 72.58897908132036,
+                "percentile_00_5": 64.38189573850532
+            },
+            "Chest_LNS3_P": {
+                "name": "Chest_LNS3_P",
+                "median": 7.28837828731983,
+                "mean": 7.255632577610437,
+                "sd": 0.887626576305421,
+                "mn": 63.88292965722407,
+                "mx": 74.21938065514169,
+                "percentile_99_5": 72.58205912785319,
+                "percentile_00_5": 65.39442607916244
+            },
+            "Chest_LNS4_L": {
+                "name": "Chest_LNS4_L",
+                "median": 3.932794324889869,
+                "mean": 3.9543138220756733,
+                "sd": 0.7079553453136819,
+                "mn": 63.88292965722407,
+                "mx": 71.61074698244731,
+                "percentile_99_5": 69.30188029256655,
+                "percentile_00_5": 65.38805609716262
+            },
+            "Chest_LNS4_R": {
+                "name": "Chest_LNS4_R",
+                "median": 3.4481046880220987,
+                "mean": 3.294862690887349,
+                "sd": 0.8353562393335195,
+                "mn": 63.88292965722407,
+                "mx": 71.06129286952122,
+                "percentile_99_5": 68.62706594679419,
+                "percentile_00_5": 65.36579358424903
+            },
+            "Chest_LNS5": {
+                "name": "Chest_LNS5",
+                "median": 4.818146675958403,
+                "mean": 4.802279459026107,
+                "sd": 0.9201402473851346,
+                "mn": 59.0606699226192,
+                "mx": 69.10373225977908,
+                "percentile_99_5": 66.63364622341817,
+                "percentile_00_5": 61.87932858208476
+            },
+            "Chest_LNS6": {
+                "name": "Chest_LNS6",
+                "median": 3.304157531358939,
+                "mean": 3.3558905552112974,
+                "sd": 0.7015237022444992,
+                "mn": 63.54213814832324,
+                "mx": 72.19575996881562,
+                "percentile_99_5": 69.5414888502894,
+                "percentile_00_5": 66.21980402653273
+            },
+            "Chest_LNS7": {
+                "name": "Chest_LNS7",
+                "median": 4.55218496552132,
+                "mean": 4.685124153672797,
+                "sd": 0.7129531545465178,
+                "mn": 56.85255029001318,
+                "mx": 66.36462691328975,
+                "percentile_99_5": 64.73548229991596,
+                "percentile_00_5": 60.095895345066836
+            },
+            "Chest_LNS8": {
+                "name": "Chest_LNS8",
+                "median": 8.801224178850475,
+                "mean": 8.896383297417067,
+                "sd": 1.634311112273038,
+                "mn": 47.127949080369504,
+                "mx": 73.03571130790604,
+                "percentile_99_5": 59.53921781858252,
+                "percentile_00_5": 50.73922541024775
+            },
+            "Chest_LNS9": {
+                "name": "Chest_LNS9",
+                "median": 5.69988245324749,
+                "mean": 5.6288933603121984,
+                "sd": 1.6713940362445687,
+                "mn": 47.802469340855346,
+                "mx": 73.03571130790604,
+                "percentile_99_5": 56.693537568581775,
+                "percentile_00_5": 51.12468642658909
+            },
+            "Chest_LNS10_L": {
+                "name": "Chest_LNS10_L",
+                "median": 4.548760007179887,
+                "mean": 4.714467037078073,
+                "sd": 0.828476987119026,
+                "mn": 56.85255029001318,
+                "mx": 69.21987572743012,
+                "percentile_99_5": 64.84819445025988,
+                "percentile_00_5": 60.18137409971882
+            },
+            "Chest_LNS10_R": {
+                "name": "Chest_LNS10_R",
+                "median": 4.5471842966314995,
+                "mean": 4.639223597473269,
+                "sd": 0.747666604340973,
+                "mn": 56.85255029001318,
+                "mx": 66.36462691328975,
+                "percentile_99_5": 64.74380221657785,
+                "percentile_00_5": 60.14976101053601
+            }
+        }
+    },
+    "HN_LNS_015": {
+        "task": "Task1007_HeadNeck_LNS_18",
+        "type": "DecodingEnsemble",
+        "train_order": 16,
+        "continue_training": false,
+        "fold": 0,
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "decoders": {
+            "HN_LNS": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18
+            ]
+        },
+        "supporting": {},
+        "weights_for_decoders": {
+            "decoders": {
+                "HN_LNS": 1.0
+            },
+            "supporting": null
+        },
+        "bpr_range_for_decoders": {
+            "HN_LNS": {
+                "percentile_00_5": 72.16955296003304,
+                "percentile_99_5": 89.49133368470454,
+                "min": 54.370635912585264,
+                "max": 93.76036443282132,
+                "mean": 8.188386859164465,
+                "std": 4.4535927529384995
+            }
+        },
+        "model_training_setup": {
+            "decoders": {
+                "all": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ],
+                "HN_LNS": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "supporting": null,
+            "patch_size": {
+                "HN_LNS": [
+                    112,
+                    96,
+                    128
+                ],
+                "all": [
+                    112,
+                    96,
+                    128
+                ]
+            },
+            "batch_size": {
+                "HN_LNS": 2,
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task1007_HeadNeck_LNS_18",
+        "decoder_architecture_setup": {
+            "HN_LNS": {
+                "base_num_feature": 32,
+                "num_conv_per_stage": [
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2
+                ],
+                "conv_kernel": null,
+                "enable_ema": true,
+                "conv_block": "conv_block"
+            }
+        },
+        "decoder_update": true,
+        "decoders_to_train": [
+            "all"
+        ],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "finetune_encoder": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task1007_HeadNeck_LNS_18/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task1007_HeadNeck_LNS_18/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5
+    },
+    "Chest_LNS_015": {
+        "task": "Task1008_Chest_LNS_15",
+        "type": "DecodingEnsemble",
+        "train_order": 17,
+        "continue_training": false,
+        "fold": 0,
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "decoders": {
+            "Chest_LNS": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+            ]
+        },
+        "supporting": {},
+        "weights_for_decoders": {
+            "decoders": {
+                "Chest_LNS": 1.0
+            },
+            "supporting": null
+        },
+        "bpr_range_for_decoders": {
+            "Chest_LNS": {
+                "percentile_00_5": 50.73922541024775,
+                "percentile_99_5": 77.70698167669616,
+                "min": 47.127949080369504,
+                "max": 80.11826778312155,
+                "mean": 8.896383297417067,
+                "std": 1.6713940362445687
+            }
+        },
+        "model_training_setup": {
+            "decoders": {
+                "all": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ],
+                "Chest_LNS": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "supporting": null,
+            "patch_size": {
+                "Chest_LNS": [
+                    112,
+                    96,
+                    128
+                ],
+                "all": [
+                    112,
+                    96,
+                    128
+                ]
+            },
+            "batch_size": {
+                "Chest_LNS": 2,
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task1008_Chest_LNS_15",
+        "decoder_architecture_setup": {
+            "Chest_LNS": {
+                "base_num_feature": 32,
+                "num_conv_per_stage": [
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2
+                ],
+                "conv_kernel": null,
+                "enable_ema": true,
+                "conv_block": "conv_block"
+            }
+        },
+        "decoder_update": true,
+        "decoders_to_train": [
+            "all"
+        ],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "finetune_encoder": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task1008_Chest_LNS_15/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task1008_Chest_LNS_15/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5
+    }
+}

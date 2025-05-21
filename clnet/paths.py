@@ -1,7 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 07.12.2023
-
-
 import os
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, join
 
@@ -12,7 +8,7 @@ default_data_identifier = 'clNetData_plans'
 default_trainer = "clNetTrainerV2_SelectiveChannelDA"
 
 
-base = "/mnt/nas/suyanzhou.syz/clNet_workspace"
+base = "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model"
 # base = os.environ['clNet_raw_data_base'] if "clNet_raw_data_base" in os.environ.keys() else None
 preprocessing_output_dir = os.path.join(base, "preprocessed")
 network_training_output_dir_base = os.path.join(base, "results")

@@ -2,16 +2,27 @@ import torch
 from torch.nn.utils import prune
 
 
-def measure_network_sparsity(model, threshold=1e-2):
+def measure_network_sparsity(model, is_prune=False, threshold=1e-6):
     total_weights = 0
     total_near_zero_weights = 0
     try_to_measure = get_paramters_to_prune(model)
-    for module, param_name in try_to_measure:
-        weights = module.weight.data
-        num_weights = weights.numel()
-        num_near_zero_weights = torch.sum(torch.abs(weights) <= threshold).item()
-        total_weights += num_weights
-        total_near_zero_weights += num_near_zero_weights
+    if is_prune:
+        for module, param_name in try_to_measure:
+            if hasattr(module, "weight_orig"):
+                weights = module.weight_orig.data
+            else:
+                weights = module.weight.data
+            num_weights = weights.numel()
+            num_near_zero_weights = torch.sum(torch.abs(weights) <= threshold).item()
+            total_weights += num_weights
+            total_near_zero_weights += num_near_zero_weights
+    else:
+        for module, param_name in try_to_measure:
+            weights = module.weight.data
+            num_weights = weights.numel()
+            num_near_zero_weights = torch.sum(torch.abs(weights) <= threshold).item()
+            total_weights += num_weights
+            total_near_zero_weights += num_near_zero_weights
     if total_weights != 0:
         overall_sparsity = total_near_zero_weights / total_weights
         # print(f"Overall sparsity: {overall_sparsity:.4f}")
@@ -35,7 +46,7 @@ def remove_pruning_reparam(decoder_dict):
 def get_paramters_to_prune(model):
     paramters_ret = []
     for module in model.modules():
-        if isinstance(module, (torch.nn.Linear, torch.nn.Conv2d, torch.nn.ConvTranspose2d, torch.nn.Conv3d, torch.nn.ConvTranspose3d)):
+        if isinstance(module, (torch.nn.Conv2d, torch.nn.ConvTranspose2d, torch.nn.Conv3d, torch.nn.ConvTranspose3d)):
             paramters_ret.append((module, "weight"))
     return paramters_ret
 

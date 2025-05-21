@@ -1,5 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 03.01.2023
 import copy
 import shutil
 import os.path
@@ -95,8 +93,8 @@ def get_continual_decoding_ensemble_setup(pth_json, plans_identifier=default_pla
         raise RuntimeError("General Encoder is not defined!")
     # The JSON only has one GeneralEncoder, and set the other "General Encoders" as downstream tasks
     if len(duplicate_ge) > 1:
-        warning_msg = "Duplicate general encoders are defined %s" % duplicate_ge
-        print(warning_msg)
+        warning_msg = "\033[33mDuplicate general encoders are defined %s\033[0m" % duplicate_ge
+        print_with_rank(warning_msg, rank=rank)
         # # raise RuntimeError("Duplicate general encoders are defined %s" % duplicate_ge)
         # for task in duplicate_ge[1:]:
         #     del dict_setup[task]
@@ -122,7 +120,7 @@ def get_continual_decoding_ensemble_setup(pth_json, plans_identifier=default_pla
             max_training_order_provided = 0
         for current_order in dict_training_order:
             if len(dict_training_order[current_order]) > 1:
-                print_with_rank("Existing the same order --", current_order, dict_training_order[current_order], rank=rank)
+                print_with_rank("\033[33mWarning: Existing the same order --\033[0m", current_order, dict_training_order[current_order], rank=rank)
                 for task in dict_training_order[current_order][1:]:
                     dict_setup[task]["train_order"] = max_training_order_provided + 1
                     max_training_order_provided += 1
@@ -145,8 +143,6 @@ def get_continual_decoding_ensemble_setup(pth_json, plans_identifier=default_pla
                 dict_ret[task] = dict_attribute_check(dict_ret[task], task)
                 dict_ret[task] = get_model_training_setup(dict_ret[task])
         dict_ret = OrderedDict(sorted(dict_ret.items(), key=lambda x: x[1]["train_order"]))
-        # # Remove the duplicated tasks that share the same task name.
-        # dict_ret = dict_duplicate_check(dict_ret)
 
     # ################  Parse the input arguments
     for task in dict_ret.keys():
@@ -202,28 +198,29 @@ def get_continual_decoding_ensemble_setup(pth_json, plans_identifier=default_pla
                                         % (decoder, task, dict_ret[task]["decoders"][decoder],
                                            dict_check_decoders[decoder][0], dict_check_decoders[decoder][-1])
                             raise RuntimeError(error_msg)
-                print_with_rank("Duplicated decoding head %s : Using 'Task %s-%s-%d' to UPDATE the existing 'Task %s-%s-%d'" %
-                                (decoder, task, dict_ret[task]["decoders"][decoder], dict_ret[task]["train_order"], dict_check_decoders[decoder][0],
-                                 dict_check_decoders[decoder][-1], dict_check_decoders[decoder][1]), rank=rank)
     # Making sure that the supporting decoder cannot 'reach to the future'.
     list_up_to_current_decoders = []
     for task in dict_ret:
-        dict_ret[task] = sanity_check_supporting_organs(dict_ret[task], dict_check_decoders)
+        dict_ret[task] = sanity_check_supporting_organs(dict_ret[task], dict_check_decoders, rank=rank)
         dict_check_supporting = {}
         for decoder in dict_ret[task]["decoders"]:
             list_up_to_current_decoders.append(decoder)
         if dict_ret[task]["supporting"] is not None:
             for decoder in dict_ret[task]["supporting"]:
                 if decoder not in list_up_to_current_decoders:
-                    warnings_msg = "Decoding head that need 'Supporting' is not found: 'Task %s-%s'" % (task, decoder)
-                    print(warnings_msg)
+                    warnings_msg = "\033[33mWarning: Decoding head that need 'Supporting' " \
+                                   "is not found: 'Task '%s'-'%s'\033[0m" % (task, decoder)
+                    print_with_rank(warnings_msg, rank=rank)
                 else:
                     if len(dict_ret[task]["supporting"][decoder]) <= 0:
-                        print("No supporting decoder is assigned to 'Task %s-%s'" % (task, decoder))
+                        print_with_rank("\033[33mWarning: No supporting decoder is assigned to "
+                                        "'Task %s-%s'\033[0m" % (task, decoder), rank=rank)
                     else:
                         for supporting in dict_ret[task]["supporting"][decoder]:
                             if supporting not in list_up_to_current_decoders:
-                                print("Supporting head cannot be reached at the moment: Using '%s' to support 'Task %s-%s'" % (supporting, task, decoder))
+                                print_with_rank("\033[33mWarning: Supporting head cannot be reached at the moment: "
+                                                "Using '%s' to support 'Task %s-%s'\033[0m" %
+                                                (supporting, task, decoder), rank=rank)
                             else:
                                 if decoder not in dict_check_supporting:
                                     dict_check_supporting[decoder] = [supporting]
@@ -231,6 +228,7 @@ def get_continual_decoding_ensemble_setup(pth_json, plans_identifier=default_pla
                                     dict_check_supporting[decoder].append(supporting)
         dict_ret[task]["supporting"] = dict_check_supporting
     # Get BPR ranges for decoders
+    bpr_cls_details = {}
     for task in dict_ret:
         bpr_file_preprocessing = join(preprocessing_output_dir, dict_ret[task]['task'], 'bpr_scores.json')
         # we need to make sure that the target pth exists.
@@ -238,19 +236,37 @@ def get_continual_decoding_ensemble_setup(pth_json, plans_identifier=default_pla
             try:
                 os.makedirs(dict_ret[task]["output_folder_name"])
             except:
-                print("Already exists: %s\n" % dict_ret[task]["output_folder_name"])
+                print_with_rank("\033[33mWarning: Already exists: %s\n\033[0m" % dict_ret[task]["output_folder_name"], rank=rank)
         bpr_file = join(dict_ret[task]["output_folder_name"], 'bpr_scores.json')
         if os.path.isfile(bpr_file_preprocessing):
             shutil.copy(bpr_file_preprocessing, bpr_file)
         flag_load_only_encoder = False
+        if "load_only_encoder" in dict_ret[task] and dict_ret[task]["load_only_encoder"]:
+            flag_load_only_encoder = True
         if not os.path.exists(bpr_file):
-            if "load_only_encoder" in dict_ret[task] and dict_ret[task]["load_only_encoder"]:
-                flag_load_only_encoder = True
-            else:
-                raise RuntimeError("bpr_scores.json not found in either preprocessed folder or results folder!")
+            print_with_rank("\033[31mFile Not Found: 'bpr_scores.json' file"
+                            " not found in either preprocessed folder or results folder!\033[0m", rank=rank)
         bpr_per_task = None
         if not flag_load_only_encoder:
             bpr_per_task = json.load(open(bpr_file))
+            for cls in bpr_per_task:
+                cls_name = bpr_per_task[cls]["name"]
+                if cls_name not in bpr_cls_details:
+                    bpr_cls_details[cls_name] = bpr_per_task[cls]
+                else:
+                    bpr_cls_details[cls_name]["percentile_00_5"] = \
+                        np.nanmin([bpr_per_task[cls]['percentile_00_5'], bpr_cls_details[cls_name]["percentile_00_5"]])
+                    bpr_cls_details[cls_name]["percentile_99_5"] = \
+                        np.nanmax([bpr_per_task[cls]['percentile_99_5'], bpr_cls_details[cls_name]["percentile_99_5"]])
+                    bpr_cls_details[cls_name]["mn"] = \
+                        np.nanmin([bpr_per_task[cls]['mn'], bpr_cls_details[cls_name]["mn"]])
+                    bpr_cls_details[cls_name]["percentile_99_5"] = \
+                        np.nanmax([bpr_per_task[cls]['percentile_99_5'], bpr_cls_details[cls_name]["percentile_99_5"]])
+                    bpr_cls_details[cls_name]["mean"] = \
+                        np.nanmax([bpr_per_task[cls]['mean'], bpr_cls_details[cls_name]["mean"]])
+                    bpr_cls_details[cls_name]["sd"] = \
+                        np.nanmax([bpr_per_task[cls]['sd'], bpr_cls_details[cls_name]["sd"]])
+
         dict_ret[task]['bpr_range_for_decoders'] = {}
         for decoder in dict_ret[task]['decoders']:
             dict_ret[task]['bpr_range_for_decoders'][decoder] = {}
@@ -272,7 +288,8 @@ def get_continual_decoding_ensemble_setup(pth_json, plans_identifier=default_pla
                         mean_bpr = np.nanmax([bpr_per_task[str(cls)]['mean'], mean_bpr])
                         std_bpr = np.nanmax([bpr_per_task[str(cls)]['sd'], std_bpr])
                     else:
-                        print("Warning, BPR range not found for Task -- '%s' class -- '%s'" % (task, cls))
+                        print_with_rank("\033[33mWarning: BPR range not found for "
+                                        "Task '%s' class '%s'\033[0m" % (task, cls), rank=rank)
             if bottom_bpr == float("inf"):
                 bottom_bpr = float("-inf")
                 top_bpr = float("inf")
@@ -286,8 +303,10 @@ def get_continual_decoding_ensemble_setup(pth_json, plans_identifier=default_pla
             dict_ret[task]['bpr_range_for_decoders'][decoder]['max'] = max_bpr
             dict_ret[task]['bpr_range_for_decoders'][decoder]['mean'] = mean_bpr
             dict_ret[task]['bpr_range_for_decoders'][decoder]['std'] = std_bpr
-    # finally, for each training task, the dict key order is first ordered using the following "key_order"
+    # For each training task, the dict key order is first ordered using the following "key_order"
     # For the remaining keys, we order them alphabetically.
+
+    #
     key_order = ["task", "type", "train_order", "continue_training", "fold", "no_mirroring",
                  "pretrain_model_name", "load_only_encoder", "decoders", "supporting", "weights_for_decoders",
                  "bpr_range_for_decoders", "model_training_setup"]
@@ -304,6 +323,31 @@ def get_continual_decoding_ensemble_setup(pth_json, plans_identifier=default_pla
             if k in current_task:
                 reorder_dict[k] = current_task[k]
         dict_ret[task] = reorder_dict
+    # Finally, we check if the decoder needs to be updated using the subsequent tasks.
+    # If "decoder_update" flag is True,
+    #   |-- If the decoder is "trainable" in the subsequent task, then, we set the "pruning" to False and enable "EMA" to True.
+    decoders_to_train = {}
+    for task in dict_ret:
+        if dict_ret[task]["decoder_update"]:
+            for decoder in dict_ret[task]["decoders"]:
+                if decoder not in decoders_to_train:
+                    decoders_to_train[decoder] = task
+                else:
+                    if dict_ret[task]["model_training_setup"]["decoders"] is not None and \
+                            decoder in dict_ret[task]["model_training_setup"]["decoders"]:
+                        print_with_rank("\033[34mAttention: Updating DECODER: "
+                                        "Using '%s-%s' to UPDATE the existing '%s-%s'\033[0m" %
+                                        (task, decoder, decoders_to_train[decoder], decoder), rank=rank)
+                        dict_ret[task]["model_training_setup"]["decoders"][decoder][5] = False
+                        dict_ret[task]["model_training_setup"]["decoders"][decoder][6] = True
+                    if dict_ret[task]["model_training_setup"]["supporting"] is not None and \
+                            decoder in dict_ret[task]["model_training_setup"]["supporting"]:
+                        print_with_rank("\033[34mAttention: Updating SUPPORTING: "
+                                        "Using '%s-%s' to UPDATE the existing '%s-%s'\033[0m" %
+                                        (task, decoder, decoders_to_train[decoder], decoder), rank=rank)
+                        dict_ret[task]["model_training_setup"]["supporting"][decoder][5] = False
+                        dict_ret[task]["model_training_setup"]["supporting"][decoder][6] = True
+    dict_ret["GeneralEncoder"]["bpr_cls_details"] = bpr_cls_details
     return trainer_class, dict_ret, network, trainer
 
 
@@ -364,7 +408,7 @@ def check_ge(task, dict_setup, dict_ret):
         dict_ret[task]["model_training_setup"]["supporting"] = None
 
 
-def sanity_check_supporting_organs(train_dict, decoder_dict):
+def sanity_check_supporting_organs(train_dict, decoder_dict, rank=0):
     """
     reorder the supporing organ training sequence
     Making sure that the most used supporting organs are prioritized
@@ -399,9 +443,9 @@ def sanity_check_supporting_organs(train_dict, decoder_dict):
                     if supporting_organ in decoder_dict:
                         cleaned_supporting_organs.append(supporting_organ)
                     else:
-                        print("Warning non-exist supporting: Using '%s' to support '%s'" % (supporting_organ, organ))
+                        print_with_rank("\033[33mWarning: Non-exist supporting: Using '%s' to support '%s'\033[0m" % (supporting_organ, organ), rank=rank)
                 else:
-                    print("Warning self-supporting: Using '%s' to support '%s'" % (supporting_organ, organ))
+                    print_with_rank("\033[33mWarning: Self-supporting: Using '%s' to support '%s'\033[0m" % (supporting_organ, organ), rank=rank)
             supporting_dict[organ] = cleaned_supporting_organs
 
         # 2nd: Remove the "organ_needs_supporting", which contains loops.
@@ -412,7 +456,7 @@ def sanity_check_supporting_organs(train_dict, decoder_dict):
                 visited_organs = set()
                 loop_organ = dfs(visited_organs, supporting_dict, organ)
                 if loop_organ is not None:
-                    print("Loop found in SUPPORTING-PATH: Using '%s' to support '%s'" % (loop_organ, organ))
+                    print_with_rank("\033[33mWarning: Loop found in SUPPORTING-PATH: Using '%s' to support '%s'\033[0m" % (loop_organ, organ), rank=rank)
                     del supporting_dict[organ]
                     removed_supporting_list.append(organ)
 
@@ -441,19 +485,20 @@ def parse_training_setup(current_training_setup):
     """
     if current_training_setup is not None:
         # If the input is a list.
-        # Then, we try to match the pre-defined order of [decay_lower, decay_upper, lr, epoch, load_pretrain, prune]
+        # Then, we try to match the pre-defined order of [decay_lower, decay_upper, lr, epoch, load_pretrain, prune, ema_enable]
         if isinstance(current_training_setup, list):
             if len(current_training_setup) < 2:
                 current_foreground_sampling_decay = default_sampling_decay
                 current_foreground_sampling_decay = list(sorted(current_foreground_sampling_decay, reverse=True))
-                current_lr_epoch_load_ema = [None, None, False, False, False]
+                current_lr_epoch_load_prune_ema = \
+                    [None, default_max_epoch, default_load_from_decoder, default_prune_decoder, default_enable_decoder_ema]
             else:
                 current_foreground_sampling_decay = current_training_setup[:2]
                 current_foreground_sampling_decay = list(sorted(current_foreground_sampling_decay, reverse=True))
                 current_foreground_sampling_decay = np.clip(current_foreground_sampling_decay, 0, 1)
-                current_lr_epoch_load_ema = current_training_setup[2:7]
-                current_lr_epoch_load_ema = try_to_correct_lr_ep_load_prune_ema(current_lr_epoch_load_ema)
-            return current_foreground_sampling_decay, current_lr_epoch_load_ema
+                current_lr_epoch_load_prune_ema = current_training_setup[2:7]
+                current_lr_epoch_load_prune_ema = try_to_correct_lr_ep_load_prune_ema(current_lr_epoch_load_prune_ema)
+            return current_foreground_sampling_decay, current_lr_epoch_load_prune_ema
         # If the input is a dict.
         # Then, we try to parse each input using keywords: foreground_sampling_decay, lr, epoch, load/load_pretrain, prune
         elif isinstance(current_training_setup, dict):
@@ -465,38 +510,38 @@ def parse_training_setup(current_training_setup):
                 current_foreground_sampling_decay = list(sorted(current_foreground_sampling_decay, reverse=True))
             foreground_sampling_decay = np.clip(current_foreground_sampling_decay, 0, 1)
 
-            current_lr_epoch_load = [None, default_max_epoch, default_load_from_decoder, default_prune_decoder, default_enable_decoder_ema]
+            current_lr_epoch_load_prune_ema = \
+                [None, default_max_epoch, default_load_from_decoder, default_prune_decoder, default_enable_decoder_ema]
             if "lr" in current_training_setup:
                 if isinstance(current_training_setup["lr"], (int, float)):
-                    current_lr_epoch_load[0] = float(current_training_setup["lr"])
+                    current_lr_epoch_load_prune_ema[0] = float(current_training_setup["lr"])
 
             if "epoch" in current_training_setup:
                 if isinstance(current_training_setup["epoch"], (int, float)):
-                    # current_lr_epoch_load[1] = max(default_pruning_percentile_moving_average_window_size + 1, int(current_training_setup["epoch"]))
-                    current_lr_epoch_load[1] = max(1, int(current_training_setup["epoch"]))
-                    if current_lr_epoch_load[0] is None:
-                        current_lr_epoch_load[0] = default_lr
+                    current_lr_epoch_load_prune_ema[1] = max(1, int(current_training_setup["epoch"]))
+                    if current_lr_epoch_load_prune_ema[0] is None:
+                        current_lr_epoch_load_prune_ema[0] = default_lr
 
             if "load_pretrain" in current_training_setup:
-                current_lr_epoch_load[2] = bool(current_training_setup["load_pretrain"])
+                current_lr_epoch_load_prune_ema[2] = bool(current_training_setup["load_pretrain"])
             if "load" in current_training_setup:
-                current_lr_epoch_load[2] = bool(current_training_setup["load"])
+                current_lr_epoch_load_prune_ema[2] = bool(current_training_setup["load"])
 
             if "prune" in current_training_setup:
-                current_lr_epoch_load[3] = bool(current_training_setup["prune"])
+                current_lr_epoch_load_prune_ema[3] = bool(current_training_setup["prune"])
                 # If only "prune" is set, then we set the lr = default_lr.
                 if "lr" not in current_training_setup:
-                    current_lr_epoch_load[0] = default_lr
+                    current_lr_epoch_load_prune_ema[0] = default_lr
                 if "epoch" not in current_training_setup:
-                    current_lr_epoch_load[1] = default_max_epoch
+                    current_lr_epoch_load_prune_ema[1] = default_max_epoch
 
             if "ema" in current_training_setup:
-                current_lr_epoch_load[4] = bool(current_training_setup["ema"])
+                current_lr_epoch_load_prune_ema[4] = bool(current_training_setup["ema"])
             if "enable_ema" in current_training_setup:
-                current_lr_epoch_load[4] = bool(current_training_setup["enable_ema"])
+                current_lr_epoch_load_prune_ema[4] = bool(current_training_setup["enable_ema"])
 
-            current_lr_epoch_load = try_to_correct_lr_ep_load_prune_ema(current_lr_epoch_load)
-            return foreground_sampling_decay, current_lr_epoch_load
+            current_lr_epoch_load_prune_ema = try_to_correct_lr_ep_load_prune_ema(current_lr_epoch_load_prune_ema)
+            return foreground_sampling_decay, current_lr_epoch_load_prune_ema
         else:
             return list(sorted(default_sampling_decay, reverse=True)), [None, None, False, False, False]
 
@@ -602,7 +647,6 @@ def get_model_training_setup(dict_in):
     decoders_training_setup = model_training_setup["decoders"]
     decoders_to_train = dict_in["decoders_to_train"]
     support_training_setup = model_training_setup["supporting"]
-    # patch_size = model_training_setup["patch_size"]
     # initialization
     dict_parse = {"decoders": {}, "supporting": {}, "patch_size": {}, "batch_size": {}}
     # parse decoder's LR and training EPOCHS
@@ -639,7 +683,7 @@ def get_model_training_setup(dict_in):
                             dict_in["decoder_architecture_setup"][decoder]["enable_ema"] = True
                 break
             else:
-                if key in dict_in["supporting"]:
+                if dict_in["supporting"] is not None and key in dict_in["supporting"]:
                     dict_parse["supporting"][key] = list(foreground_sampling_decay) + list(lr_epoch_load_prune_ema)
                     if lr_epoch_load_prune_ema[-1] and key in dict_in["decoder_architecture_setup"]:
                         if not dict_in["decoder_architecture_setup"][key]["enable_ema"]:
@@ -658,6 +702,7 @@ def get_model_training_setup(dict_in):
                                                                                    default_prune_decoder, default_enable_decoder_ema]
     for decoder in decoders_to_train:
         if decoder.lower() == "all":
+            # If "all" is in "decoders_to_train", then each decoder in the "decoders" is trained (sequentially)
             if dict_in["decoders"] is not None:
                 for decoder_in_dict in dict_in["decoders"]:
                     if dict_parse["decoders"] is None:
@@ -668,10 +713,10 @@ def get_model_training_setup(dict_in):
                 for supporting_in_dict in dict_in["supporting"]:
                     if dict_parse["supporting"] is None:
                         dict_parse["supporting"] = {}
-                    if dict_parse["decoders"] is not None and supporting_in_dict in dict_parse["decoders"] and \
-                            dict_parse["decoders"][supporting_in_dict] is not None and len(dict_parse["decoders"][supporting_in_dict]) > 0:
-                        dict_parse["supporting"][supporting_in_dict] = copy.deepcopy(dict_parse["decoders"][supporting_in_dict])
-                    if supporting_in_dict not in dict_parse["supporting"] and "all" not in dict_parse["supporting"]:
+                    # if dict_parse["decoders"] is not None and supporting_in_dict not in dict_parse["decoders"] and \
+                    #         dict_parse["decoders"][supporting_in_dict] is not None and len(dict_parse["decoders"][supporting_in_dict]) > 0:
+                    #     dict_parse["supporting"][supporting_in_dict] = copy.deepcopy(dict_parse["decoders"][supporting_in_dict])
+                    if supporting_in_dict not in dict_parse["supporting"] and "all" in dict_parse["supporting"]:
                         dict_parse["supporting"][supporting_in_dict] = copy.deepcopy(default_training_setup)
         else:
             if dict_in["decoders"] is not None and len(dict_in["decoders"]) > 0 and decoder in dict_in["decoders"]:
@@ -682,9 +727,9 @@ def get_model_training_setup(dict_in):
             if dict_in["supporting"] is not None and len(dict_in["supporting"]) > 0 and decoder in dict_in["supporting"]:
                 if dict_parse["supporting"] is None:
                     dict_parse["supporting"] = {}
-                if dict_parse["decoders"] is not None and decoder in dict_parse["decoders"] and \
-                        dict_parse["decoders"][decoder] is not None and len(dict_parse["decoders"][decoder]) > 0:
-                    dict_parse["supporting"][decoder] = copy.deepcopy(dict_parse["decoders"][decoder])
+                # if dict_parse["decoders"] is not None and decoder in dict_parse["decoders"] and \
+                #         dict_parse["decoders"][decoder] is not None and len(dict_parse["decoders"][decoder]) > 0:
+                #     dict_parse["supporting"][decoder] = copy.deepcopy(dict_parse["decoders"][decoder])
                 if decoder not in dict_parse["supporting"] and "all" not in dict_parse["supporting"]:
                     dict_parse["supporting"][decoder] = copy.deepcopy(default_training_setup)
     # We try to remove the repeated training setups: If supporting is already set, then we removed the training setup
@@ -697,13 +742,13 @@ def get_model_training_setup(dict_in):
                 if decoder in dict_parse["decoders"]:
                     del dict_parse["decoders"][decoder]
     # We try to check the pre-defined patch size for each decoding head
+    pool_scales = np.prod(default_pool, 0) / 2
     for decoder in dict_in["decoders"]:
         if decoder not in dict_in["model_training_setup"]["patch_size"]:
             dict_parse["patch_size"][decoder] = None
         else:
             # The minimum dimension is 2^0=1 (e.g., patch size = 8x16x16), such that the bottom feature dim is 1x1x1
             # might cause skip-feature vs. decoding-feature mismatch -> We use "interpolation" to "match" the dimension.
-            pool_scales = np.prod(default_pool, 0) / 2
             dict_parse["patch_size"][decoder] = copy.deepcopy(default_patch_size)
             if len(dict_in["model_training_setup"]["patch_size"][decoder]) == 3:
                 for i in range(3):
@@ -716,6 +761,8 @@ def get_model_training_setup(dict_in):
                             dict_parse["patch_size"][decoder][i] = abs(int(default_patch_size[i]))
                         else:
                             dict_parse["patch_size"][decoder][i] = abs(int(dict_in["model_training_setup"]["patch_size"][decoder][i]))
+            else:
+                dict_parse["patch_size"][decoder] = copy.deepcopy(default_patch_size)
 
     # if the "all" is not defined in cfg, then we set the largest patch size considering all decoding paths.
     if "all" not in dict_in["model_training_setup"]["patch_size"]:
@@ -727,7 +774,24 @@ def get_model_training_setup(dict_in):
                 if dict_in["model_training_setup"]["patch_size"][decoder] is not None:
                     for d in range(len(patch_size_all)):
                         patch_size_all[d] = max(patch_size_all[d], dict_in["model_training_setup"]["patch_size"][decoder][d])
-        dict_parse["patch_size"]["all"] = dict_in["model_training_setup"]["patch_size"]["all"]
+            dict_parse["patch_size"]["all"] = dict_in["model_training_setup"]["patch_size"]["all"]
+        else:
+            if len(dict_in["model_training_setup"]["patch_size"]["all"]) == 3:
+                for i in range(3):
+                    if abs(dict_in["model_training_setup"]["patch_size"]["all"][i]) % pool_scales[i] != 0:
+                        tmp_ratio = max(1, int(abs(dict_in["model_training_setup"]["patch_size"]["all"][i]) / pool_scales[i]))
+                        dict_in["model_training_setup"]["patch_size"]["all"][i] = int(tmp_ratio * pool_scales[i])
+                    else:
+                        if dict_in["model_training_setup"]["patch_size"]["all"][i] == 0:
+                            dict_in["model_training_setup"]["patch_size"]["all"][i] = abs(int(default_patch_size[i]))
+                        else:
+                            dict_in["model_training_setup"]["patch_size"]["all"][i] = abs(int(dict_in["model_training_setup"]["patch_size"]["all"][i]))
+                dict_parse["patch_size"]["all"] = copy.deepcopy(dict_in["model_training_setup"]["patch_size"]["all"])
+            else:
+                dict_parse["patch_size"]["all"] = copy.deepcopy(default_patch_size)
+            for decoder in dict_in["decoders"]:
+                if decoder not in dict_in["model_training_setup"]["patch_size"] or dict_in["model_training_setup"]["patch_size"][decoder] is not None:
+                    dict_parse["patch_size"][decoder] = copy.deepcopy(dict_in["model_training_setup"]["patch_size"]["all"])
 
     # We try to check the pre-defined batch size for each decoding head
     for decoder in dict_in["decoders"]:
@@ -824,6 +888,9 @@ def dict_attribute_check(dict_to_check, task):
 
     if "disable_validation" not in dict_to_check or not isinstance(dict_to_check["disable_validation"], bool):
         dict_to_check["disable_validation"] = True
+
+    if "decoder_update" not in dict_to_check or not isinstance(dict_to_check["decoder_update"], bool):
+        dict_to_check["decoder_update"] = default_decoder_update
 
     if "warmup" not in dict_to_check:
         dict_to_check["warmup"] = default_warmup_epoch
@@ -1082,8 +1149,6 @@ def get_default_configuration(network, task, network_trainer, plans_identifier=d
 
     if "3d_lowres" in network.lower():
         batch_dice = False
-        # print("Sample dice + CE loss")
     else:
         batch_dice = True
-        # print("Batch dice + CE loss")
     return plans_file, output_folder_name, dataset_directory, batch_dice, stage

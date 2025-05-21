@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 03.01.2023
-
 from batchgenerators.utilities.file_and_folder_operations import *
 from clnet.paths import network_training_output_dir
 

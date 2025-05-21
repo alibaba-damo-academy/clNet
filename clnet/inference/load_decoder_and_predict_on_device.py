@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 08.15.2024
-
 import time
 from typing import Optional
 
@@ -20,7 +17,7 @@ def load_model_and_predict(trainer_class: Optional, trainer_heads_summarized: di
                            list_of_lists: list, bpr_files: list, bm_files: list, output_folder: str,
                            num_threads_preprocessing: int, num_threads_nifti_save: int, disable_tta: bool,
                            overwrite_existing_pred: bool, compile_network: bool, save_intermediate_result_for_debug: bool, all_in_gpu: bool,
-                           disable_mixed_precision: bool, step_size: float):
+                           disable_mixed_precision: bool, step_size: float, disable_pruning: bool, disable_ema: bool):
     # Try to parse all decoder/supporting heads
     all_decoders = list(trainer_heads_summarized[decoder_or_support].keys())
     if len(all_decoders) > 0:
@@ -33,8 +30,9 @@ def load_model_and_predict(trainer_class: Optional, trainer_heads_summarized: di
             if num_gpus < 2:
                 load_model_and_predict_on_device(
                     devices[0], trainer_class, task_dict_for_device, trainer_heads_summarized, heads_to_pred_cleaned, decoder_or_support, task_plan_to_use,
-                    do_not_inference, case_ids, list_of_lists, bpr_files, bm_files, output_folder, num_threads_preprocessing,
-                    disable_tta, overwrite_existing_pred, compile_network, save_intermediate_result_for_debug, all_in_gpu, disable_mixed_precision, step_size)
+                    do_not_inference, case_ids, list_of_lists, bpr_files, bm_files, output_folder, num_threads_preprocessing, disable_tta,
+                    overwrite_existing_pred, compile_network, save_intermediate_result_for_debug, all_in_gpu, disable_mixed_precision,
+                    step_size, disable_pruning, disable_ema)
             else:
                 processes = []
                 for n in range(num_gpus):
@@ -45,7 +43,7 @@ def load_model_and_predict(trainer_class: Optional, trainer_heads_summarized: di
                                    args=(devices[n], trainer_class, task_dict_for_device, trainer_heads_summarized, heads_to_pred, decoder_or_support,
                                          task_plan_to_use, do_not_inference, case_ids, list_of_lists, bpr_files, bm_files, output_folder,
                                          num_threads_preprocessing, disable_tta, overwrite_existing_pred, compile_network, save_intermediate_result_for_debug,
-                                         all_in_gpu, disable_mixed_precision, step_size))
+                                         all_in_gpu, disable_mixed_precision, step_size, disable_pruning, disable_ema))
                     p.start()
                     processes.append(p)
                 for p in processes:
@@ -54,8 +52,9 @@ def load_model_and_predict(trainer_class: Optional, trainer_heads_summarized: di
             if len(heads_to_pred_cleaned) > 0:
                 load_model_and_predict_on_device(
                     "cpu", trainer_class, task_dict_for_device, trainer_heads_summarized, heads_to_pred_cleaned, decoder_or_support, task_plan_to_use,
-                    do_not_inference, case_ids, list_of_lists, bpr_files, bm_files, output_folder, num_threads_preprocessing,
-                    disable_tta, overwrite_existing_pred, compile_network, save_intermediate_result_for_debug, all_in_gpu, disable_mixed_precision, step_size)
+                    do_not_inference, case_ids, list_of_lists, bpr_files, bm_files, output_folder, num_threads_preprocessing, disable_tta,
+                    overwrite_existing_pred, compile_network, save_intermediate_result_for_debug, all_in_gpu, disable_mixed_precision,
+                    step_size, disable_pruning, disable_ema)
         print("Resampling and Saving Predictions...")
         postprocess_resample_seg(trainer_heads_summarized, output_folder, case_ids, decoder_or_support,
                                  overwrite_existing_pred, num_threads_nifti_save, save_intermediate_result_for_debug)
@@ -63,9 +62,9 @@ def load_model_and_predict(trainer_class: Optional, trainer_heads_summarized: di
 
 def load_model_and_predict_on_device(device: str, trainer_class: Optional, trainer_heads_details: dict, trainer_heads_summarized: dict,
                                      heads_to_pred: list, decoder_or_support: str, task_plan_to_use: str, do_not_inference: bool, case_ids: np.ndarray,
-                                     list_of_lists: list, bpr_files: list, bm_files: list, output_folder: str,
-                                     num_threads_preprocessing: int, disable_tta: bool,  overwrite_existing_pred: bool, compile_network: bool,
-                                     save_intermediate_result_for_debug: bool, all_in_gpu: bool, disable_mixed_precision: bool, step_size: float):
+                                     list_of_lists: list, bpr_files: list, bm_files: list, output_folder: str, num_threads_preprocessing: int,
+                                     disable_tta: bool,  overwrite_existing_pred: bool, compile_network: bool, save_intermediate_result_for_debug: bool,
+                                     all_in_gpu: bool, disable_mixed_precision: bool, step_size: float, disable_pruning: bool, disable_ema: bool):
     pretrained_network_continual_learning = None
     trainer = None
     if device != "cpu":
@@ -100,7 +99,7 @@ def load_model_and_predict_on_device(device: str, trainer_class: Optional, train
                 ge_plans = trainer.plans
                 ge_stage = trainer.stage
             trainer.initialize_network()  # all task should call initialize_network to load trained model properly
-            trainer.load_pretrained_params_ensemble(load_from_ema=True, is_training=False)
+            trainer.load_pretrained_params_ensemble(load_from_ema=not disable_ema, is_training=False)
             pretrained_network_continual_learning = trainer.network.to(torch.device("cpu"))
 
         del pretrained_network_continual_learning
@@ -116,10 +115,13 @@ def load_model_and_predict_on_device(device: str, trainer_class: Optional, train
         trainer.process_plans(trainer.plans)
         trainer.setup_data_aug_params()
         # After loading all the weights -> remove the pruning params and make all pruned weights to be 0.
+        if disable_pruning:
+            for decoder in trainer.network.decoder_dict:
+                trainer.reset_pruning_mask(decoder)
         remove_pruning_reparam(trainer.network.decoder_dict)
-        # decoder_sparsity = measure_network_sparsity(trainer.network.decoder_dict)
-        # if decoder_sparsity is not None:
-        #     trainer.print_to_log_file("Decoder Sparsity: %s" % decoder_sparsity)
+        decoder_sparsity = measure_network_sparsity(trainer.network.decoder_dict)
+        if decoder_sparsity is not None:
+            trainer.print_to_log_file("Decoder Sparsity: %s" % decoder_sparsity)
         # Remove all EMA modules
         trainer.network.ema_dict.clear()
         # After loading all pruned weights, we copy the model to GPU for inference.
@@ -188,6 +190,10 @@ def predict_cases(trainer: Optional, case_ids: np.ndarray, list_of_lists: list, 
 
     # load the body part scores and pre-set patch-size for each decoding head
     model_bpr_lookup = trainer_heads_summarized['bpr_range']
+    # if "bpr_cls_details" in trainer_heads_summarized["bpr_cls_details"]:
+    #     bpr_cls_details = trainer_heads_summarized["bpr_cls_details"]
+    # else:
+    #     bpr_cls_details = None
     # find the slice range for head_to_infer according to bpr scores and model_bpr_lookup,
     # if the bpr range of head_to_infer is not overlapped with bpr scores of input CT,
     # then case will be removed from inference list and outputs an empty mask.
@@ -197,15 +203,17 @@ def predict_cases(trainer: Optional, case_ids: np.ndarray, list_of_lists: list, 
         bottom_bpr = float("inf")
         top_bpr = float("-inf")
         if head_to_pred != 'all':
-            if "gtv" in head_to_pred.lower() or "tumor" in head_to_pred.lower():
+            if "gtv" in head_to_pred.lower() or "tumor" in head_to_pred.lower() or \
+                    "lesion" in head_to_pred.lower() or ("ln" in head_to_pred.lower() and "lns" not in head_to_pred.lower()):
                 bottom_bpr = min(bpr[head_to_pred]['min'] - bpr[head_to_pred]['std'], bottom_bpr)
                 top_bpr = max(bpr[head_to_pred]['max'] + bpr[head_to_pred]['std'], top_bpr)
             else:
-                bottom_bpr = min(bpr[head_to_pred]['percentile_00_5'] - bpr[head_to_pred]['std'], bottom_bpr)
-                top_bpr = max(bpr[head_to_pred]['percentile_99_5'] + bpr[head_to_pred]['std'], top_bpr)
+                bottom_bpr = min(bpr[head_to_pred]['percentile_00_5'] - bpr[head_to_pred]['mean'] * 0.25, bottom_bpr)
+                top_bpr = max(bpr[head_to_pred]['percentile_99_5'] + bpr[head_to_pred]['mean'] * 0.25, top_bpr)
 
         # check if the input image is out of the bpr range
         excluded_idx = []
+        # might_be_empty_cls = {}
         if bpr_files is not None and isinstance(bpr_files, list):
             for i, bpr_file in enumerate(bpr_files):
                 with open(bpr_file) as f:
@@ -213,17 +221,28 @@ def predict_cases(trainer: Optional, case_ids: np.ndarray, list_of_lists: list, 
                 scores = np.array(bpr_single_case["cleaned slice scores"])
                 slices = np.where(np.logical_and(scores >= bottom_bpr, scores <= top_bpr))
                 if len(slices[0]) == 0:
-                    print("Warning! {} does not has any anatomical structure in {}, skipping inference and exporting empty mask.".
+                    print("\033[33mWarning! {} does not has any anatomical structure in {}, skipping inference and exporting empty mask.\033[0m".
                           format(os.path.basename(list_of_lists[i][0]), head_to_pred))
                     excluded_idx.append(i)
-                    # creating empty masks
-                    bm = sitk.ReadImage(bm_files[i])
-                    pred_data = np.zeros_like(sitk.GetArrayFromImage(bm))
-                    np.save(output_filenames_npy[i], np.array(pred_data, dtype=np.uint16))
+                    # # creating empty masks
+                    # bm = sitk.ReadImage(bm_files[i])
+                    # pred_data = np.zeros_like(sitk.GetArrayFromImage(bm))
+                    # np.save(output_filenames_npy[i], np.array(pred_data, dtype=np.uint16))
                 else:
                     bottom_slice = int(np.min(slices))
                     top_slice = int(np.max(slices)) + 1
                     head_to_infer_brp_range_for_all_images.append([bottom_slice, top_slice])
+                # if bpr_cls_details is not None:
+                #     for organ in bpr_cls_details:
+                #         if "gtv" in organ.lower() or "tumor" in organ.lower() or "lesion" in organ.lower() or "ln" in organ.lower():
+                #             bottom_bpr = bpr_cls_details[organ]["min"] - bpr_cls_details[organ]["std"]
+                #             top_bpr = bpr_cls_details[organ]["max"] + bpr_cls_details[organ]["std"]
+                #         else:
+                #             bottom_bpr = bpr_cls_details[organ]["percentile_00_5"] - 0.25 * bpr_cls_details[organ]["mean"]
+                #             top_bpr = bpr_cls_details[organ]["percentile_99_5"] + 0.25 * bpr_cls_details[organ]["mean"]
+                #         slices = np.where(np.logical_and(scores >= bottom_bpr, scores <= top_bpr))
+                #         if len(slices[0]) == 0:
+                #             might_be_empty_cls[organ] = True
         # removing cases that has no overlapped bpr ranges.
         list_of_lists = [ele for idx, ele in enumerate(list_of_lists) if idx not in excluded_idx]
         cleaned_output_files = [ele for idx, ele in enumerate(cleaned_output_files) if idx not in excluded_idx]

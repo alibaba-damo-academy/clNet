@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo + @Puyang Wang
-#   Data: 07.12.2023
-
 import os.path
 import clnet
 import shutil

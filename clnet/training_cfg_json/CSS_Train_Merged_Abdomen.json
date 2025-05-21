@@ -1,0 +1,32 @@
+{
+  "clnet_general_encoder": "GeneralEncoder",
+
+  "GeneralEncoder": {
+    "task": "Task001_SuperGeneralEncoder",
+    "fold": "all",
+    "load_only_encoder": true
+  },
+
+  "Abdomen_decoder": {
+    "train_order": 1,
+    "task": "Task905_Abdomen_decoder",
+    "continue_training": false,
+    "fold": "all",
+    "decoders": {
+      "MERGED_ABDOMEN": "1-27"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  }
+}

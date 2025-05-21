@@ -5,10 +5,10 @@ from multiprocessing import Pool
 import shutil
 
 
-pth_input = "/nas/dazhou.guo/Data_Partial/DataRaw/raw/KiTS"
-pth_output_img = "/nas/dazhou.guo/Data_Partial/DataRaw/raw/KiTS/images"
-pth_output_lab_kidney = "/nas/dazhou.guo/Data_Partial/DataRaw/raw/KiTS/labelsKidney"
-pth_output_lab_gtv = "/nas/dazhou.guo/Data_Partial/DataRaw/raw/KiTS/labelsGTV"
+pth_input = "PATH/TO/DataRaw/raw/KiTS"
+pth_output_img = "PATH/TO/DataRaw/raw/KiTS/images"
+pth_output_lab_kidney = "PATH/TO/DataRaw/raw/KiTS/labelsKidney"
+pth_output_lab_gtv = "PATH/TO/DataRaw/raw/KiTS/labelsGTV"
 if not os.path.exists(pth_output_img):
     os.makedirs(pth_output_img)
 if not os.path.exists(pth_output_lab_kidney):

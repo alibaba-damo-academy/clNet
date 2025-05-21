@@ -86,8 +86,8 @@ def main():
     dict_idx_label = {}
     for key in dict_label_idx:
         dict_idx_label[dict_label_idx[key]] = key
-    pth_root_input = "/nas/dazhou.guo/Data_Partial/clNet_raw_data/Task1002_FLARE22/predsTs"
-    pth_root_output = "/nas/dazhou.guo/Data_Partial/clNet_raw_data/Task1002_FLARE22/predsTs_clNet_merged"
+    pth_root_input = "PATH/TO/clNet_raw_data/Task1002_FLARE22/predsTs"
+    pth_root_output = "PATH/TO/clNet_raw_data/Task1002_FLARE22/predsTs_clNet_merged"
     prefix = ""
     postfix = "_decoders.nii.gz"
     lm = LabelMerge(dict_label_idx, pth_root_input, pth_root_output, prefix, postfix, multi_thread=8)

@@ -198,6 +198,25 @@ class ProjectExciteLayer(nn.Module):
         return output_tensor
 
 
+class ResAdd(nn.Module):
+    def __init__(self, input_channels, output_channels, conv_op=nn.Conv2d, conv_kwargs=None, nonlin=nn.LeakyReLU, nonlin_kwargs=None):
+        super(ResAdd, self).__init__()
+        if nonlin_kwargs is None:
+            nonlin_kwargs = {'negative_slope': 1e-2, 'inplace': True}
+        if conv_kwargs is None:
+            conv_kwargs = {'kernel_size': 3, 'stride': 1, 'padding': 1, 'dilation': 1, 'bias': True}
+        self.conv = conv_op(input_channels, output_channels, **conv_kwargs)
+        if nonlin is not None:
+            self.relu = nonlin(**nonlin_kwargs)
+        else:
+            self.relu = lambda x: x
+
+    def forward(self, x, x_cat):
+        x_cat = self.conv(x_cat)
+        x += x_cat
+        return self.relu(x)
+
+
 class ConvDropoutNormNonlin(nn.Module):
     def __init__(self, input_channels, output_channels,
                  conv_op=nn.Conv2d, conv_kwargs=None,
@@ -229,8 +248,14 @@ class ConvDropoutNormNonlin(nn.Module):
             self.dropout = self.dropout_op(**self.dropout_op_kwargs)
         else:
             self.dropout = None
-        self.instnorm = self.norm_op(output_channels, **self.norm_op_kwargs)
-        self.lrelu = self.nonlin(**self.nonlin_kwargs)
+        if norm_op is not None:
+            self.instnorm = self.norm_op(output_channels, **self.norm_op_kwargs)
+        else:
+            self.instnorm = lambda x: x
+        if nonlin is not None:
+            self.lrelu = self.nonlin(**self.nonlin_kwargs)
+        else:
+            self.lrelu = lambda x: x
 
     def forward(self, x):
         x = self.conv(x)
@@ -275,12 +300,13 @@ class ResConvDropoutNormNonlin(nn.Module):
 
     def forward(self, x):
         x = self.conv(x)
-        identity = x
         if self.dropout is not None:
-            x = self.dropout(x)
-        x = self.instnorm(x)
-        x += identity
-        return self.lrelu(x)
+            y = self.dropout(x)
+        else:
+            y = x
+        y = self.instnorm(y)
+        y = x + y
+        return self.lrelu(y)
 
 
 class SEConvDropoutNormNonlin(nn.Module):
@@ -382,24 +408,6 @@ class StackedConvLayers(nn.Module):
                  norm_op=nn.BatchNorm2d, norm_op_kwargs=None,
                  dropout_op=nn.Dropout2d, dropout_op_kwargs=None,
                  nonlin=nn.LeakyReLU, nonlin_kwargs=None, first_stride=None, basic_block=ConvDropoutNormNonlin):
-        '''
-        stacks ConvDropoutNormLReLU layers. initial_stride will only be applied to first layer in the stack. The other parameters affect all layers
-        :param input_feature_channels:
-        :param output_feature_channels:
-        :param num_convs:
-        :param dilation:
-        :param kernel_size:
-        :param padding:
-        :param dropout:
-        :param initial_stride:
-        :param conv_op:
-        :param norm_op:
-        :param dropout_op:
-        :param inplace:
-        :param neg_slope:
-        :param norm_affine:
-        :param conv_bias:
-        '''
         self.input_channels = input_feature_channels
         self.output_channels = output_feature_channels
 

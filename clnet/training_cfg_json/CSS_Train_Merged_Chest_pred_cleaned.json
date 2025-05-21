@@ -1,0 +1,839 @@
+{
+    "GeneralEncoder": {
+        "task": "Task001_SuperGeneralEncoder",
+        "type": "GeneralEncoder",
+        "train_order": 0,
+        "continue_training": false,
+        "fold": "all",
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "load_only_encoder": true,
+        "decoders": {},
+        "supporting": {},
+        "weights_for_decoders": {},
+        "bpr_range_for_decoders": {},
+        "model_training_setup": {
+            "decoders": null,
+            "supporting": null,
+            "patch_size": {
+                "all": null
+            },
+            "batch_size": {
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "bak": {
+            "decoders": {},
+            "supporting": null,
+            "weights_for_decoders": {
+                "decoders": null,
+                "supporting": null
+            },
+            "model_training_setup": {
+                "decoders": null,
+                "supporting": null,
+                "patch_size": {
+                    "all": null
+                },
+                "batch_size": {
+                    "all": 2
+                }
+            }
+        },
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task001_SuperGeneralEncoder",
+        "decoder_architecture_setup": {},
+        "decoder_update": true,
+        "decoders_to_train": [],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "encoder_architecture_setup": {
+            "base_num_feature": 32,
+            "num_conv_per_stage": null,
+            "conv_kernel": null,
+            "pool_kernel": null,
+            "enable_ema": false
+        },
+        "finetune_encoder": false,
+        "full_network": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task001_SuperGeneralEncoder/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task001_SuperGeneralEncoder/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5,
+        "bpr_cls_details": {
+            "A_Aorta_Arch": {
+                "name": "A_Aorta_Arch",
+                "median": 2.642675235154023,
+                "mean": 2.6848345509746157,
+                "sd": 0.5706502142760748,
+                "mn": 64.61303932619826,
+                "mx": 72.1956032557503,
+                "percentile_99_5": 69.52539178136965,
+                "percentile_00_5": 66.86748567887723
+            },
+            "A_Aorta_Ascending": {
+                "name": "A_Aorta_Ascending",
+                "median": 8.996143870532187,
+                "mean": 9.06963715569388,
+                "sd": 1.5492118688741396,
+                "mn": 53.38647968555556,
+                "mx": 69.10365798637066,
+                "percentile_99_5": 66.21321058361859,
+                "percentile_00_5": 57.23293884486379
+            },
+            "A_Aorta_Descending": {
+                "name": "A_Aorta_Descending",
+                "median": 24.67824703035509,
+                "mean": 24.958886387191686,
+                "sd": 3.318283582157384,
+                "mn": 32.69679826977068,
+                "mx": 106.04565036096372,
+                "percentile_99_5": 66.41660510426982,
+                "percentile_00_5": 41.65845542776108
+            },
+            "A_Pulmonary": {
+                "name": "A_Pulmonary",
+                "median": 5.783617698229008,
+                "mean": 5.814880734343785,
+                "sd": 0.9691786282294336,
+                "mn": 55.876398732340604,
+                "mx": 66.95212480632739,
+                "percentile_99_5": 65.24822999538527,
+                "percentile_00_5": 59.490337198876944
+            },
+            "Bronchus_L": {
+                "name": "Bronchus_L",
+                "median": 3.3614130513393192,
+                "mean": 3.3684539992341698,
+                "sd": 0.9786700420037205,
+                "mn": 58.03758808203294,
+                "mx": 66.36490170486755,
+                "percentile_99_5": 64.41141234165924,
+                "percentile_00_5": 61.07616500301732
+            },
+            "Bronchus_R": {
+                "name": "Bronchus_R",
+                "median": 3.3623268536995106,
+                "mean": 3.407858281699269,
+                "sd": 1.067305257024284,
+                "mn": 58.03758808203294,
+                "mx": 66.36490170486755,
+                "percentile_99_5": 64.4110819610431,
+                "percentile_00_5": 61.036852720102225
+            },
+            "Heart": {
+                "name": "Heart",
+                "median": 10.505322443113197,
+                "mean": 10.477289361251817,
+                "sd": 1.5176061266287049,
+                "mn": 47.07727386712246,
+                "mx": 73.03558830646986,
+                "percentile_99_5": 60.34582111639743,
+                "percentile_00_5": 49.98018187316086
+            },
+            "Lung_L": {
+                "name": "Lung_L",
+                "median": 29.902198393708495,
+                "mean": 29.866536865730943,
+                "sd": 2.610633545587134,
+                "mn": 38.99769623114315,
+                "mx": 105.11060289864955,
+                "percentile_99_5": 74.88423195415649,
+                "percentile_00_5": 45.30769606736543
+            },
+            "Lung_R": {
+                "name": "Lung_R",
+                "median": 29.370551127960326,
+                "mean": 29.50835999822083,
+                "sd": 2.769368384376641,
+                "mn": 38.70473171226682,
+                "mx": 105.34436476422809,
+                "percentile_99_5": 74.83099465392587,
+                "percentile_00_5": 45.60925295639859
+            },
+            "Bone_Sternum": {
+                "name": "Bone_Sternum",
+                "median": 14.721819550369801,
+                "mean": 14.496600923034551,
+                "sd": 1.8476889637528155,
+                "mn": 54.586661821174246,
+                "mx": 74.21909290728203,
+                "percentile_99_5": 72.53507264322396,
+                "percentile_00_5": 58.17864409574313
+            },
+            "Trachea": {
+                "name": "Trachea",
+                "median": 13.233843694535935,
+                "mean": 13.316168566903892,
+                "sd": 1.2824340532227188,
+                "mn": 61.94662828941482,
+                "mx": 81.0263893097372,
+                "percentile_99_5": 78.29528845886114,
+                "percentile_00_5": 65.10802553159166
+            },
+            "V_VenaCava_I": {
+                "name": "V_VenaCava_I",
+                "median": 11.418840369722282,
+                "mean": 11.730933890243032,
+                "sd": 3.8954604088269433,
+                "mn": 32.69679826977068,
+                "mx": 105.57812662980663,
+                "percentile_99_5": 53.749624782122524,
+                "percentile_00_5": 42.126603707257985
+            },
+            "V_VenaCava_S": {
+                "name": "V_VenaCava_S",
+                "median": 6.995003079934879,
+                "mean": 7.046736994313113,
+                "sd": 1.3227749556241652,
+                "mn": 55.62138962620162,
+                "mx": 69.2734259137641,
+                "percentile_99_5": 66.99298897589236,
+                "percentile_00_5": 60.015804075110694
+            },
+            "Musc_Cervical_A": {
+                "name": "Musc_Cervical_A",
+                "median": 8.878578483386853,
+                "mean": 8.531850223012095,
+                "sd": 2.2275133451309994,
+                "mn": 70.40820482541065,
+                "mx": 87.76055542862562,
+                "percentile_99_5": 80.99210515352209,
+                "percentile_00_5": 72.54488765059642
+            },
+            "Musc_Scalenus": {
+                "name": "Musc_Scalenus",
+                "median": 6.821154818332637,
+                "mean": 6.772988048934914,
+                "sd": 2.5293690441078533,
+                "mn": 73.01085950621443,
+                "mx": 94.62223139586297,
+                "percentile_99_5": 81.3351300118095,
+                "percentile_00_5": 74.62600419996782
+            },
+            "Musc_Scalenus_A": {
+                "name": "Musc_Scalenus_A",
+                "median": 6.5539572846644845,
+                "mean": 6.545059998970467,
+                "sd": 2.245231489597605,
+                "mn": 72.09918231316036,
+                "mx": 93.90271489162707,
+                "percentile_99_5": 80.49195965016406,
+                "percentile_00_5": 74.00892838271798
+            },
+            "Musc_Scleido": {
+                "name": "Musc_Scleido",
+                "median": 13.009531511747639,
+                "mean": 11.81280781254058,
+                "sd": 4.363828572953417,
+                "mn": 71.08842803419438,
+                "mx": 102.25982497187573,
+                "percentile_99_5": 85.52350360522416,
+                "percentile_00_5": 73.80106369761413
+            },
+            "A_CommonCarotid_L": {
+                "name": "A_CommonCarotid_L",
+                "median": 17.978181537025456,
+                "mean": 16.840463789214695,
+                "sd": 4.653695279414052,
+                "mn": 67.31238658115365,
+                "mx": 102.25982497187573,
+                "percentile_99_5": 85.97023526966527,
+                "percentile_00_5": 69.26526219541572
+            },
+            "A_CommonCarotid_R": {
+                "name": "A_CommonCarotid_R",
+                "median": 13.771168754197106,
+                "mean": 12.954411309620525,
+                "sd": 4.729882643863836,
+                "mn": 70.66601029431042,
+                "mx": 102.25982497187573,
+                "percentile_99_5": 85.96913103822519,
+                "percentile_00_5": 73.11047309384581
+            },
+            "A_Subclavian_L": {
+                "name": "A_Subclavian_L",
+                "median": 5.957589531535952,
+                "mean": 6.737316720475791,
+                "sd": 2.87863441254291,
+                "mn": 62.959235204284354,
+                "mx": 85.19784602586522,
+                "percentile_99_5": 76.48666395121069,
+                "percentile_00_5": 69.82099466018498
+            },
+            "A_Subclavian_R": {
+                "name": "A_Subclavian_R",
+                "median": 7.456378337127511,
+                "mean": 7.55037488689184,
+                "sd": 1.9232020683812816,
+                "mn": 66.20148391528356,
+                "mx": 83.90082545108092,
+                "percentile_99_5": 76.13289695510342,
+                "percentile_00_5": 68.66167311671539
+            },
+            "A_Vertebral_L": {
+                "name": "A_Vertebral_L",
+                "median": 11.70350375696286,
+                "mean": 10.529624370278055,
+                "sd": 4.50304582584267,
+                "mn": 70.10435686895445,
+                "mx": 102.25982497187573,
+                "percentile_99_5": 85.36029122666379,
+                "percentile_00_5": 74.91544017781443
+            },
+            "A_Vertebral_R": {
+                "name": "A_Vertebral_R",
+                "median": 10.157293516937223,
+                "mean": 9.393526917595672,
+                "sd": 4.396905585880872,
+                "mn": 70.8233989644282,
+                "mx": 102.25982497187573,
+                "percentile_99_5": 84.86511808763196,
+                "percentile_00_5": 75.55513297871141
+            },
+            "Eso": {
+                "name": "Eso",
+                "median": 28.24808552604597,
+                "mean": 28.145448733570316,
+                "sd": 2.4161170694538736,
+                "mn": 46.32072401799273,
+                "mx": 89.36280163695709,
+                "percentile_99_5": 77.3097860690143,
+                "percentile_00_5": 49.46324868160979
+            },
+            "V_Azygos": {
+                "name": "V_Azygos",
+                "median": 16.749442244831897,
+                "mean": 16.835357832452516,
+                "sd": 3.8514284944107486,
+                "mn": 44.77791892897689,
+                "mx": 103.94179357075683,
+                "percentile_99_5": 66.85664612038858,
+                "percentile_00_5": 50.19075723519686
+            },
+            "V_Brachiocephalic_L": {
+                "name": "V_Brachiocephalic_L",
+                "median": 5.198810408813422,
+                "mean": 5.270792066140255,
+                "sd": 1.089631207384259,
+                "mn": 63.26288932885598,
+                "mx": 74.10464944258536,
+                "percentile_99_5": 72.69068221235791,
+                "percentile_00_5": 67.46943307478489
+            },
+            "V_Brachiocephalic_R": {
+                "name": "V_Brachiocephalic_R",
+                "median": 4.679629181359168,
+                "mean": 4.747008073354936,
+                "sd": 1.2167619255547357,
+                "mn": 63.26288932885598,
+                "mx": 74.2054297336152,
+                "percentile_99_5": 72.36131838662911,
+                "percentile_00_5": 67.65925238828098
+            },
+            "V_InternalJuguar_L": {
+                "name": "V_InternalJuguar_L",
+                "median": 12.01476061807012,
+                "mean": 11.454989014035409,
+                "sd": 4.183456459656836,
+                "mn": 71.90097663258086,
+                "mx": 102.25982497187573,
+                "percentile_99_5": 84.67366996028281,
+                "percentile_00_5": 73.31134827772422
+            },
+            "V_InternalJuguar_R": {
+                "name": "V_InternalJuguar_R",
+                "median": 13.289004995799381,
+                "mean": 11.89961906552269,
+                "sd": 4.4090570751464435,
+                "mn": 70.69613363735428,
+                "mx": 102.25982497187573,
+                "percentile_99_5": 84.79816584554656,
+                "percentile_00_5": 72.99280131993363
+            },
+            "V_Pulmonary": {
+                "name": "V_Pulmonary",
+                "median": 6.221898723337031,
+                "mean": 6.219239043083801,
+                "sd": 1.1035689974501628,
+                "mn": 53.40146938465682,
+                "mx": 65.12391612507531,
+                "percentile_99_5": 62.806616774888056,
+                "percentile_00_5": 56.64564623464633
+            },
+            "V_Subclavian_L": {
+                "name": "V_Subclavian_L",
+                "median": 1.1021298651055673,
+                "mean": 1.2271871408663293,
+                "sd": 0.6345325176300092,
+                "mn": 70.4556198894802,
+                "mx": 75.60662963647376,
+                "percentile_99_5": 74.01340764692273,
+                "percentile_00_5": 72.79854812905238
+            },
+            "V_Subclavian_R": {
+                "name": "V_Subclavian_R",
+                "median": 1.2964960571310726,
+                "mean": 1.4488743931797508,
+                "sd": 0.720177643632655,
+                "mn": 69.00119669611252,
+                "mx": 75.80725453275761,
+                "percentile_99_5": 73.90013670428127,
+                "percentile_00_5": 72.46587022913212
+            },
+            "V_Portal_Splenic": {
+                "name": "V_Portal_Splenic",
+                "median": 4.514752953382985,
+                "mean": 5.0714147617359275,
+                "sd": 5.360277446488315,
+                "mn": 38.434852231001926,
+                "mx": 89.12874827032793,
+                "percentile_99_5": 47.369484415024964,
+                "percentile_00_5": 42.341761534760614
+            },
+            "Musc_Autochthon_L": {
+                "name": "Musc_Autochthon_L",
+                "median": 39.18785676401957,
+                "mean": 39.275921682934964,
+                "sd": 2.844693558909783,
+                "mn": 32.37020320914479,
+                "mx": 95.7664320048429,
+                "percentile_99_5": 90.45612061626746,
+                "percentile_00_5": 31.449581079302
+            },
+            "Musc_Autochthon_R": {
+                "name": "Musc_Autochthon_R",
+                "median": 38.97728005725558,
+                "mean": 38.941437297754575,
+                "sd": 3.036578151098175,
+                "mn": 32.37020320914479,
+                "mx": 90.69339179474267,
+                "percentile_99_5": 90.13327940471936,
+                "percentile_00_5": 31.44924934084462
+            },
+            "ChestWall_L": {
+                "name": "ChestWall_L",
+                "median": 35.336228900838265,
+                "mean": 37.503522451475185,
+                "sd": 7.299688417640262,
+                "mn": 38.997813587632116,
+                "mx": 96.21219681166596,
+                "percentile_99_5": 81.48375118781115,
+                "percentile_00_5": 44.490827741118665
+            },
+            "ChestWall_R": {
+                "name": "ChestWall_R",
+                "median": 35.83890583524554,
+                "mean": 36.95522676549143,
+                "sd": 7.227019913005159,
+                "mn": 38.43450896656587,
+                "mx": 96.21219681166596,
+                "percentile_99_5": 81.10216167546217,
+                "percentile_00_5": 44.774847715422396
+            },
+            "Lung_LUL": {
+                "name": "Lung_LUL",
+                "median": 27.649833695635717,
+                "mean": 27.336374812636507,
+                "sd": 3.1105715423032994,
+                "mn": 41.634356154217734,
+                "mx": 89.92037583255453,
+                "percentile_99_5": 74.82069406355173,
+                "percentile_00_5": 47.81242846999813
+            },
+            "Lung_LLL": {
+                "name": "Lung_LLL",
+                "median": 22.718249808766274,
+                "mean": 23.04223501651057,
+                "sd": 2.922564344299208,
+                "mn": 34.04646844494726,
+                "mx": 100.51150375863703,
+                "percentile_99_5": 67.64512867754107,
+                "percentile_00_5": 44.8369614005153
+            },
+            "Lung_RUL": {
+                "name": "Lung_RUL",
+                "median": 16.81942662822857,
+                "mean": 17.063087598151427,
+                "sd": 2.5572822532609587,
+                "mn": 39.67704001995045,
+                "mx": 76.61043495311509,
+                "percentile_99_5": 74.71250057718473,
+                "percentile_00_5": 57.85123939933811
+            },
+            "Lung_RML": {
+                "name": "Lung_RML",
+                "median": 12.25349371426655,
+                "mean": 12.410590848986295,
+                "sd": 3.041853948206417,
+                "mn": 45.36889999364775,
+                "mx": 89.36339285684753,
+                "percentile_99_5": 61.20422445906244,
+                "percentile_00_5": 48.94288794313785
+            },
+            "Lung_RLL": {
+                "name": "Lung_RLL",
+                "median": 20.8591311194809,
+                "mean": 20.8574415025886,
+                "sd": 2.6922013973044745,
+                "mn": 38.70460229607633,
+                "mx": 95.767157868867,
+                "percentile_99_5": 65.80094101995164,
+                "percentile_00_5": 45.15363270401632
+            },
+            "A_BrachiocephalicTrunk": {
+                "name": "A_BrachiocephalicTrunk",
+                "median": 3.684468380274218,
+                "mean": 3.665141934875792,
+                "sd": 0.7611717789728756,
+                "mn": 66.20128827197172,
+                "mx": 74.0958071010316,
+                "percentile_99_5": 72.13344946360539,
+                "percentile_00_5": 68.50407654637598
+            },
+            "LAA": {
+                "name": "LAA",
+                "median": 2.6841470077168914,
+                "mean": 2.692406013410132,
+                "sd": 0.732616272975324,
+                "mn": 53.721534229233484,
+                "mx": 63.739697994117016,
+                "percentile_99_5": 61.31747026759395,
+                "percentile_00_5": 58.6522399361604
+            },
+            "SpinalCord": {
+                "name": "SpinalCord",
+                "median": 45.48968853601494,
+                "mean": 44.65996105566489,
+                "sd": 4.385698053311837,
+                "mn": 32.370090291190465,
+                "mx": 95.767157868867,
+                "percentile_99_5": 85.90130304763146,
+                "percentile_00_5": 41.45982919448738
+            },
+            "Myocardium": {
+                "name": "Myocardium",
+                "median": 8.36074830582777,
+                "mean": 8.416645431369258,
+                "sd": 1.0722589478586704,
+                "mn": 47.136326305626326,
+                "mx": 65.58050674348934,
+                "percentile_99_5": 58.47318840930416,
+                "percentile_00_5": 50.146667614513525
+            },
+            "Atrium_L": {
+                "name": "Atrium_L",
+                "median": 6.564891365445625,
+                "mean": 6.509548107354286,
+                "sd": 0.914217964860452,
+                "mn": 50.57654318169402,
+                "mx": 65.58050674348934,
+                "percentile_99_5": 60.44810912400452,
+                "percentile_00_5": 54.00464269841274
+            },
+            "Ventricle_L": {
+                "name": "Ventricle_L",
+                "median": 6.788194242058982,
+                "mean": 6.845493733563999,
+                "sd": 1.1543499434385962,
+                "mn": 47.928804810681854,
+                "mx": 60.35578987911546,
+                "percentile_99_5": 57.68734644148751,
+                "percentile_00_5": 50.91464687046509
+            },
+            "Atrium_R": {
+                "name": "Atrium_R",
+                "median": 7.8022545461998085,
+                "mean": 7.702610602213698,
+                "sd": 0.9154409383563027,
+                "mn": 48.34474161371102,
+                "mx": 62.6312437790481,
+                "percentile_99_5": 59.748691123266624,
+                "percentile_00_5": 52.127045520979465
+            },
+            "Ventricle_R": {
+                "name": "Ventricle_R",
+                "median": 10.794153325702197,
+                "mean": 10.654191888022075,
+                "sd": 1.2816529218343096,
+                "mn": 46.330845463314894,
+                "mx": 73.03571130790604,
+                "percentile_99_5": 60.49989995119325,
+                "percentile_00_5": 49.95956971017447
+            }
+        }
+    },
+    "Chest1_decoder": {
+        "task": "Task903_Chest_decoder1",
+        "type": "DecodingEnsemble",
+        "train_order": 2,
+        "continue_training": false,
+        "fold": "all",
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "decoders": {
+            "MERGED_CHEST1": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35
+            ]
+        },
+        "supporting": {},
+        "weights_for_decoders": {
+            "decoders": {
+                "MERGED_CHEST1": 1.0
+            },
+            "supporting": null
+        },
+        "bpr_range_for_decoders": {
+            "MERGED_CHEST1": {
+                "percentile_00_5": 31.44924934084462,
+                "percentile_99_5": 90.45612061626746,
+                "min": 32.37020320914479,
+                "max": 106.04565036096372,
+                "mean": 39.275921682934964,
+                "std": 5.360277446488315
+            }
+        },
+        "model_training_setup": {
+            "decoders": {
+                "all": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ],
+                "MERGED_CHEST1": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "supporting": null,
+            "patch_size": {
+                "MERGED_CHEST1": [
+                    112,
+                    96,
+                    128
+                ],
+                "all": [
+                    112,
+                    96,
+                    128
+                ]
+            },
+            "batch_size": {
+                "MERGED_CHEST1": 2,
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task903_Chest_decoder1",
+        "decoder_architecture_setup": {
+            "MERGED_CHEST1": {
+                "base_num_feature": 32,
+                "num_conv_per_stage": [
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2
+                ],
+                "conv_kernel": null,
+                "enable_ema": true,
+                "conv_block": "conv_block"
+            }
+        },
+        "decoder_update": true,
+        "decoders_to_train": [
+            "all"
+        ],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "finetune_encoder": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task903_Chest_decoder1/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task903_Chest_decoder1/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5
+    },
+    "Chest2_decoder": {
+        "task": "Task904_Chest_decoder2",
+        "type": "DecodingEnsemble",
+        "train_order": 3,
+        "continue_training": false,
+        "fold": "all",
+        "no_mirroring": true,
+        "pretrain_model_name": "model_final_checkpoint.model",
+        "decoders": {
+            "MERGED_CHEST2": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+            ]
+        },
+        "supporting": {},
+        "weights_for_decoders": {
+            "decoders": {
+                "MERGED_CHEST2": 1.0
+            },
+            "supporting": null
+        },
+        "bpr_range_for_decoders": {
+            "MERGED_CHEST2": {
+                "percentile_00_5": 41.45982919448738,
+                "percentile_99_5": 85.90130304763146,
+                "min": 32.370090291190465,
+                "max": 100.51150375863703,
+                "mean": 44.65996105566489,
+                "std": 7.299688417640262
+            }
+        },
+        "model_training_setup": {
+            "decoders": {
+                "all": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ],
+                "MERGED_CHEST2": [
+                    0.35,
+                    0.3,
+                    0.0003,
+                    1000,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "supporting": null,
+            "patch_size": {
+                "MERGED_CHEST2": [
+                    112,
+                    96,
+                    128
+                ],
+                "all": [
+                    112,
+                    96,
+                    128
+                ]
+            },
+            "batch_size": {
+                "MERGED_CHEST2": 2,
+                "all": 2
+            }
+        },
+        "amsgrad": true,
+        "batch_dice": true,
+        "dataset_directory": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/preprocessed/Task904_Chest_decoder2",
+        "decoder_architecture_setup": {
+            "MERGED_CHEST2": {
+                "base_num_feature": 32,
+                "num_conv_per_stage": [
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2
+                ],
+                "conv_kernel": null,
+                "enable_ema": true,
+                "conv_block": "conv_block"
+            }
+        },
+        "decoder_update": true,
+        "decoders_to_train": [
+            "all"
+        ],
+        "decompress_data": true,
+        "deterministic": false,
+        "disable_postprocessing_on_folds": false,
+        "disable_saving": false,
+        "disable_validation": true,
+        "finetune_encoder": false,
+        "optimizer": "adam",
+        "output_folder_name": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task904_Chest_decoder2/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans",
+        "plans_file": "/mnt/nas/suyanzhou.syz/clnet_project/pretrained_model/results/clNet/3d_fullres/Task904_Chest_decoder2/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/plans.json",
+        "plot_network": true,
+        "run_mixed_precision": true,
+        "save_npz": false,
+        "stage": 0,
+        "val_disable_overwrite": true,
+        "warmup": 5
+    }
+}

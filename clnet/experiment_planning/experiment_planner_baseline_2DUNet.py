@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 07.12.2023
-
 from copy import deepcopy
 from clnet.experiment_planning.common_utils import get_pool_and_conv_props
 from clnet.experiment_planning.experiment_planner_baseline_3DUNet import ExperimentPlanner3D

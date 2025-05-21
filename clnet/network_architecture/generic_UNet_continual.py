@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 03.01.2023
-
 import numpy as np
 from typing import Union, Tuple
 
@@ -13,7 +10,7 @@ from clnet.configuration import default_base_num_feature, default_pool, default_
     default_alpha_ema_encoder, default_alpha_ema_decoder, default_gpu_ram_constraint
 from clnet.utilities.nd_softmax import softmax_helper
 from clnet.utilities.to_torch import to_cuda, maybe_to_torch
-from clnet.network_architecture.initialization import InitWeights_He, InitZero
+from clnet.network_architecture.initialization import InitWeights_He, InitWeights_Zero
 from clnet.network_architecture.neural_network import SegmentationNetwork
 from clnet.network_architecture.generic_UNet import ConvDropoutNormNonlin, ResConvDropoutNormNonlin
 from clnet.network_architecture.generic_UNet_supp import Generic_UNet_Supporting_Organ
@@ -46,7 +43,7 @@ class Generic_UNet_Continual_Base(SegmentationNetwork):
     def __init__(self, task_dict, input_channels, base_num_features, num_pool=None, feat_map_mul_on_downscale=2, conv_op=nn.Conv2d,
                  norm_op=nn.BatchNorm2d, norm_op_kwargs=None, dropout_op=nn.Dropout2d, dropout_op_kwargs=None, nonlin=nn.LeakyReLU,
                  nonlin_kwargs=None, deep_supervision=True, dropout_in_localization=False, final_nonlin=softmax_helper,
-                 weightInitializer=InitWeights_He(1e-2), upscale_logits=False, convolutional_pooling=False, convolutional_upsampling=False,
+                 weight_initializer=InitWeights_He(1e-2), upscale_logits=False, convolutional_pooling=False, convolutional_upsampling=False,
                  max_num_features=None, basic_block=ConvDropoutNormNonlin, seg_output_use_bias=False):
         """
         combine encoder and decoder, can add more decoders
@@ -61,7 +58,6 @@ class Generic_UNet_Continual_Base(SegmentationNetwork):
         self.alpha_encoder = default_alpha_ema_encoder
         self.alpha_decoder = default_alpha_ema_decoder
 
-        # if self.task_dict["batch_size"]
         # Default setting
         image_channels = input_channels
         num_conv_per_stage = default_num_conv_per_stage
@@ -96,7 +92,7 @@ class Generic_UNet_Continual_Base(SegmentationNetwork):
                     image_channels, base_num_features, num_pool, num_conv_per_stage=num_conv_per_stage,
                     feat_map_mul_on_downscale=feat_map_mul_on_downscale, conv_op=conv_op, norm_op=norm_op,
                     norm_op_kwargs=norm_op_kwargs, dropout_op=dropout_op, dropout_op_kwargs=dropout_op_kwargs,
-                    nonlin=nonlin, nonlin_kwargs=nonlin_kwargs, weightInitializer=weightInitializer,
+                    nonlin=nonlin, nonlin_kwargs=nonlin_kwargs, weight_initializer=weight_initializer,
                     pool_op_kernel_sizes=pool_op_kernel_sizes, conv_kernel_sizes=conv_kernel_sizes,
                     convolutional_pooling=convolutional_pooling, convolutional_upsampling=convolutional_upsampling,
                     max_num_features=max_num_features, basic_block=basic_block, if_full_network=if_full_network)
@@ -107,7 +103,7 @@ class Generic_UNet_Continual_Base(SegmentationNetwork):
                         image_channels, base_num_features, num_pool, num_conv_per_stage=num_conv_per_stage,
                         feat_map_mul_on_downscale=feat_map_mul_on_downscale, conv_op=conv_op, norm_op=norm_op,
                         norm_op_kwargs=norm_op_kwargs, dropout_op=dropout_op, dropout_op_kwargs=dropout_op_kwargs,
-                        nonlin=nonlin, nonlin_kwargs=nonlin_kwargs, weightInitializer=InitZero,
+                        nonlin=nonlin, nonlin_kwargs=nonlin_kwargs, weight_initializer=InitWeights_Zero(),
                         pool_op_kernel_sizes=pool_op_kernel_sizes, conv_kernel_sizes=conv_kernel_sizes,
                         convolutional_pooling=convolutional_pooling, convolutional_upsampling=convolutional_upsampling,
                         max_num_features=max_num_features, basic_block=basic_block, if_full_network=if_full_network)
@@ -142,7 +138,7 @@ class Generic_UNet_Continual_Base(SegmentationNetwork):
                             norm_op_kwargs=norm_op_kwargs, dropout_op=dropout_op, dropout_op_kwargs=dropout_op_kwargs,
                             nonlin=nonlin, nonlin_kwargs=nonlin_kwargs, deep_supervision=deep_supervision,
                             dropout_in_localization=dropout_in_localization, final_nonlin=final_nonlin,
-                            weight_initializer=weightInitializer, pool_op_kernel_sizes=pool_op_kernel_sizes,
+                            weight_initializer=weight_initializer, pool_op_kernel_sizes=pool_op_kernel_sizes,
                             conv_kernel_sizes=conv_kernel_sizes, upscale_logits=upscale_logits,
                             convolutional_upsampling=convolutional_upsampling, max_num_features=max_num_features,
                             basic_block=basic_block, seg_output_use_bias=seg_output_use_bias)
@@ -155,11 +151,10 @@ class Generic_UNet_Continual_Base(SegmentationNetwork):
                                 norm_op_kwargs=norm_op_kwargs, dropout_op=dropout_op, dropout_op_kwargs=dropout_op_kwargs,
                                 nonlin=nonlin, nonlin_kwargs=nonlin_kwargs, deep_supervision=deep_supervision,
                                 dropout_in_localization=dropout_in_localization, final_nonlin=final_nonlin,
-                                weight_initializer=InitZero, pool_op_kernel_sizes=pool_op_kernel_sizes,
+                                weight_initializer=InitWeights_Zero(), pool_op_kernel_sizes=pool_op_kernel_sizes,
                                 conv_kernel_sizes=conv_kernel_sizes, upscale_logits=upscale_logits,
                                 convolutional_upsampling=convolutional_upsampling, max_num_features=max_num_features,
                                 basic_block=basic_block, seg_output_use_bias=seg_output_use_bias)
-                            self.ema_dict[decoder].load_state_dict(current_decoder.state_dict())
             # Note: currently we do not support EMA updates in Feature-Level-Supporting
             if "supporting" in train_dict and train_dict["supporting"] is not None and len(train_dict["supporting"]) > 0:
                 for decoder in train_dict["supporting"]:
@@ -175,14 +170,12 @@ class Generic_UNet_Continual_Base(SegmentationNetwork):
                             self.decoder_dict, train_dict["supporting"], decoder, num_pool, conv_op=conv_op,
                             norm_op=norm_op, norm_op_kwargs=norm_op_kwargs, dropout_op=dropout_op,
                             dropout_op_kwargs=dropout_op_kwargs, nonlin=nonlin, nonlin_kwargs=nonlin_kwargs,
-                            weight_initializer=weightInitializer)
+                            weight_initializer=weight_initializer)
                     else:
                         raise RuntimeError("Decoder for '%s' is NOT found!" % decoder)
                     self.supporting_dict[decoder] = current_supporting
             self.task_dict[task] = train_dict
         self.do_ds = True
-        if weightInitializer is not None:
-            self.apply(weightInitializer)
 
     def update_ema_encoder(self):
         param_encoder = {name: param for name, param in self.encoder.named_parameters()}
@@ -281,31 +274,31 @@ class Generic_UNet_Continual_Base(SegmentationNetwork):
         else:
             with torch.no_grad():
                 skips = self.encoder(x, skip_feat_list=None)
-        seg_feats = [skips.pop()]
+        bottom_neck_feats = skips.pop()
         ret_outputs = {}
         flag_missing = None
         if head_to_train == "all":
             if decoder_or_support == "decoders":
                 for head in train_dict["decoders"]:
                     if head in self.decoder_dict:
-                        ret_outputs[head] = self.decoder_dict[head](skips, seg_feats=seg_feats)
+                        ret_outputs[head] = self.decoder_dict[head](skips, bottom_neck_feats)
                     else:
                         flag_missing = head
             else:
                 for head in train_dict["supporting"]:
                     if head in self.supporting_dict:
-                        ret_outputs[head] = self.supporting_dict[head](self.decoder_dict, skips, seg_feats=seg_feats)
+                        ret_outputs[head] = self.supporting_dict[head](skips, bottom_neck_feats)
                     else:
                         flag_missing = head
         else:
             if decoder_or_support == "decoders":
                 if head_to_train in self.decoder_dict:
-                    ret_outputs[head_to_train] = self.decoder_dict[head_to_train](skips, seg_feats=seg_feats)
+                    ret_outputs[head_to_train] = self.decoder_dict[head_to_train](skips, bottom_neck_feats)
                 else:
                     flag_missing = head_to_train
             else:
                 if head_to_train in self.supporting_dict:
-                    ret_outputs[head_to_train] = self.supporting_dict[head_to_train](self.decoder_dict, skips, seg_feats=seg_feats)
+                    ret_outputs[head_to_train] = self.supporting_dict[head_to_train](skips, bottom_neck_feats)
                 else:
                     flag_missing = head_to_train
         if flag_missing is not None:

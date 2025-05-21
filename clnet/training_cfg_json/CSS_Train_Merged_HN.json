@@ -1,0 +1,78 @@
+{
+  "clnet_general_encoder": "GeneralEncoder",
+
+  "GeneralEncoder": {
+    "task": "Task001_SuperGeneralEncoder",
+    "fold": "all",
+    "load_only_encoder": true
+  },
+
+  "HN1_decoder": {
+    "train_order": 1,
+    "task": "Task900_HN_decoder1",
+    "continue_training": false,
+    "fold": "all",
+    "decoders": {
+      "MERGED_HN1": "1-26"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "HN2_decoder": {
+    "train_order": 1,
+    "task": "Task901_HN_decoder2",
+    "continue_training": false,
+    "fold": "all",
+    "decoders": {
+      "MERGED_HN2": "1-13"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  },
+
+  "HN3_decoder": {
+    "train_order": 1,
+    "task": "Task902_HN_decoder3",
+    "continue_training": false,
+    "fold": "all",
+    "decoders": {
+      "MERGED_HN3": "1-10"
+    },
+    "model_training_setup": {
+      "decoders": {
+        "all": {
+          "epoch": 1000
+        }
+      },
+      "patch_size": {
+        "all": [112, 96, 128]
+      }
+    },
+    "decoders_to_train": [
+      "all"
+    ]
+  }
+}

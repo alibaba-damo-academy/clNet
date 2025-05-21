@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 03.01.2023
-
 from torch import nn
 
 from clnet.training.loss_functions.dice_loss import DC_and_CE_loss
@@ -30,10 +27,15 @@ class MultipleOutputLossEnsemble(nn.Module):
                 else:
                     weights_for_side = self.weights_for_side
 
-                l_head = weights_for_side[0] * self.loss(current_x[0], current_y[0])
-                for i in range(1, len(current_x)):
+                l_head = 0
+                # weights_for_side[0] * self.loss(current_x[0], current_y[0])
+                for i in range(len(current_x)):
                     if weights_for_side[i] != 0:
-                        l_head += weights_for_side[i] * self.loss(current_x[i], current_y[i])
+                        if isinstance(current_x[i], tuple):
+                            for j in range(len(current_x[i])):
+                                l_head += weights_for_side[i] * self.loss(current_x[i][j], current_y[i])
+                        else:
+                            l_head += weights_for_side[i] * self.loss(current_x[i], current_y[i])
             else:
                 txt_msg = "Prediction head %s is not found in target label." % head
                 raise RuntimeError(txt_msg)

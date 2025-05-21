@@ -2,10 +2,7 @@ import torch
 import copy
 import numpy as np
 
-pth_model_source = "/nas/dazhou.guo/Data_Partial/results_yanzhou/Task016_StructSeg_OAR22/Task016_StructSeg_OAR22/clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/all/Task016_StructSeg_OAR22_from_scratch_model_final_checkpoint.model"
-# pth_model_target = "/nas/dazhou.guo/Data_Partial/results/clNet/3d_fullres/Task100_GeneralEncoder/" \
-#                    "clNetTrainerV2_SelectiveChannelDA_Continual_Decoding_Ensemble__clNetPlans/all/" \
-#                    "GeneralEncoder_model_final_checkpoint.model"
+pth_model_source = "XXX"
 
 model_source = torch.load(pth_model_source, weights_only=False)
 model_target = copy.deepcopy(model_source)

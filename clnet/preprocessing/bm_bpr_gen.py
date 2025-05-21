@@ -107,7 +107,9 @@ def bm_coarse_gen(filename_bm_list: list, filename_ct_list: list, overwrite: boo
                 img_origin = img_header["itk_origin"]
                 img_direction = img_header["itk_direction"]
                 img_spacing = img_header["itk_spacing"]
-            except:
+            except Exception as e:
+                if verbose:
+                    print("Falling back to SimpleITK due to:", e)
                 img = sitk.ReadImage(filename_ct)
                 dat = sitk.GetArrayFromImage(img)
                 img_origin = img.GetOrigin()
@@ -173,7 +175,7 @@ def bpr_score_clean(input_list):
 
 
 if __name__ == "__main__":
-    input_folder_ = "/nas/dazhou.guo/Data_Partial/clNet_raw_data/Task016_StructSeg_OAR22/imagesTs"
-    output_folder_ = "/nas/dazhou.guo/Data_Partial/clNet_raw_data/Task016_StructSeg_OAR22/predsTs_debug"
+    input_folder_ = "PATH/TO/clNet_raw_data/Task016_StructSeg_OAR22/imagesTs"
+    output_folder_ = "PATH/TO/clNet_raw_data/Task016_StructSeg_OAR22/predsTs_debug"
     mp.set_start_method("spawn", force=True)
     bm_bpr_gen(input_folder_, output_folder_, True, verbose=True)

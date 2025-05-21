@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import os
 import json
-from TotalSegList import *
+# from TotalSegList import *
 import copy
 from DatasetOrganIdxList import *
 
@@ -10,7 +10,7 @@ current_label = combine_labels(["Task003_Liver", "Task006_Lung", "Task007_Pancre
                                 "Task018_PelvicOrgan", "Task1002_FLARE22", "Task023_AMOS", "Task012_WORD", "Task501_TotalSegAbd"])
 join = os.path.join
 
-pth_root = "/nas/dazhou.guo/Data_Partial/clNet_raw_data/"
+pth_root = "PATH/TO/CheckData"
 
 task_groups = {
     # "301": "Task301_RTOG_refine_Eso",
@@ -30,18 +30,18 @@ task_groups = {
     # "004": "Task004_ChestLNS_16_20",
     # "006": "Task006_Chest_EsoCancer_Organ35",
     # "009": "Task009_HNLNS_18",
-    "024": "Task024_MSD_Liver",
-    "025": "Task025_MSD_Lung",
-    "026": "Task026_MSD_Pancreas",
-    "027": "Task027_MSD_HepaticVessel",
-    "028": "Task028_MSD_Spleen",
-    "029": "Task029_MSD_Colon",
-    "034": "Task034_Liver_Ke",
-    "036": "Task036_StructSeg_NPC",
-    "031": "Task031_NPC_ZJU",
-    "030": "Task030_EsoCancer_WPY",
-    "035": "Task035_LungCancer_WPY",
-    "667": "Task667_abdomen_bone",
+    # "024": "Task024_MSD_Liver",
+    # "025": "Task025_MSD_Lung",
+    # "026": "Task026_MSD_Pancreas",
+    # "027": "Task027_MSD_HepaticVessel",
+    # "028": "Task028_MSD_Spleen",
+    # "029": "Task029_MSD_Colon",
+    # "034": "Task034_Liver_Ke",
+    # "036": "Task036_StructSeg_NPC",
+    # "031": "Task031_NPC_ZJU",
+    # "030": "Task030_EsoCancer_WPY",
+    # "035": "Task035_LungCancer_WPY",
+    # "667": "Task667_abdomen_bone",
     # "204": "Task204_RTOG_SpinalCord",
     # "205": "Task205_RTOG_BrachialPlex",
     # "301": "Task206_RTOG_ProximalBronchi",
@@ -51,6 +51,8 @@ task_groups = {
     # "210": "Task210_RTOG_V_Pulmonary",
     # "211": "Task211_RTOG_V_IVC",
     # "212": "Task212_RTOG_ChestWalls",
+    # "331": "Task331_Tooth",
+    "1017": "Task1017_Abdomen_ZJU_Vessel_32"
 }
 
 task_labels = {
@@ -70,18 +72,18 @@ task_labels = {
     # "004": Task004_ChestLNS_16_20,
     # "006": Task006_Chest_EsoCancer_Organ35,
     # "009": Task009_HNLNS_18,
-    "024": Task024_MSD_Liver,
-    "025": Task025_MSD_Lung,
-    "026": Task026_MSD_Pancreas,
-    "027": Task027_MSD_HepaticVessel,
-    "028": Task028_MSD_Spleen,
-    "029": Task029_MSD_Colon,
-    "034": Task034_Liver_Ke,
-    "036": Task036_StructSeg_NPC,
-    "031": Task031_NPC_ZJU,
-    "030": Task030_EsoCancer_WPY,
-    "035": Task035_LungCancer_WPY,
-    "667": Task667_abdomen_bone,
+    # "024": Task024_MSD_Liver,
+    # "025": Task025_MSD_Lung,
+    # "026": Task026_MSD_Pancreas,
+    # "027": Task027_MSD_HepaticVessel,
+    # "028": Task028_MSD_Spleen,
+    # "029": Task029_MSD_Colon,
+    # "034": Task034_Liver_Ke,
+    # "036": Task036_StructSeg_NPC,
+    # "031": Task031_NPC_ZJU,
+    # "030": Task030_EsoCancer_WPY,
+    # "035": Task035_LungCancer_WPY,
+    # "667": Task667_abdomen_bone,
     # "204": {1: "SpinalCord"},
     # "205": {1: "BrachialPlex"},
     # "206": {1: "ProximalBronchi"},
@@ -91,6 +93,7 @@ task_labels = {
     # "210": {1: "V_Pulmonary"},
     # "211": {1: "V_IVC"},
     # "212": {1: "ChestWall_L", 2: "ChestWall_R"},
+    "1017": Task1017_Abdomen_ZJU_Vessel_32
 }
 
 for id in task_groups.keys():

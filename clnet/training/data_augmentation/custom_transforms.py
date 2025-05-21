@@ -1,6 +1,3 @@
-#   Author @Dazhou Guo
-#   Data: 03.01.2022
-
 import numpy as np
 from batchgenerators.transforms.abstract_transforms import AbstractTransform
 from typing import Union, Tuple, Callable

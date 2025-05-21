@@ -17,8 +17,8 @@ for idx in target_idx_label:
     target_label_idx[target_idx_label[idx]] = idx
 
 
-pth_source_label = "/nas/dazhou.guo/Data_Xiuan/Task500_TotalSegV2/labelsTs"
-pth_target_label = "/nas/dazhou.guo/Data_Xiuan/Task501_TotalSegAbd/labelsTs"
+pth_source_label = "PATH/TO/Task500_TotalSegV2/labelsTs"
+pth_target_label = "PATH/TO/Task501_TotalSegAbd/labelsTs"
 
 if not os.path.exists(pth_target_label) and os.path.exists(pth_source_label):
     os.makedirs(pth_target_label)

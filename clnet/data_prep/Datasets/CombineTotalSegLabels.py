@@ -217,8 +217,8 @@ def main():
     dict_label_idx = {}
     for key in dict_idx_label:
         dict_label_idx[dict_idx_label[key]] = key
-    pth_root_input = "/nas/dazhou.guo/Data_Partial/DataRaw/raw/TotalSeg/Totalsegmentator_dataset"
-    pth_root_output = "/nas/dazhou.guo/Data_Partial/DataRaw/raw/TotalSeg/Totalsegmentator_merged_all"
+    pth_root_input = "PATH/TO/DataRaw/raw/TotalSeg/Totalsegmentator_dataset"
+    pth_root_output = "PATH/TO/DataRaw/raw/TotalSeg/Totalsegmentator_merged_all"
     lm = LabelMerge(dict_label_idx, pth_root_input, pth_root_output, multi_thread=96)
     lm.process()
 

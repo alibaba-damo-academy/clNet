@@ -27,7 +27,7 @@ class InitWeights_He(object):
                 module.bias = nn.init.constant_(module.bias, 0)
 
 
-class InitZero(object):
+class InitWeights_Zero(object):
     def __init__(self, neg_slope=1e-2):
         self.neg_slope = neg_slope
 

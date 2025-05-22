@@ -1,4 +1,0 @@
-[console_scripts]
-clNet_plan_and_preprocess = clnet.experiment_planning.clnet_plan_and_preprocess:main
-clNet_predict = clnet.inference.predict_simple:main
-clNet_train = clnet.run.run_training:main
